@@ -53,6 +53,17 @@ app = Flask(__name__)
 # Flask session configuration
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
+
+def _get_data_dir(subdir: str) -> str:
+    """Returns local path or /tmp path for serverless/Vercel environments."""
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        path = os.path.join('/tmp', 'data', subdir)
+    else:
+        path = os.path.join('data', subdir)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 # Ollama Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3.2:3b"  # Better quality model (was llama3.2:1b)
@@ -1211,7 +1222,7 @@ def get_complete_analysis_history():
         import os
         from datetime import datetime
         
-        sessions_dir = 'data/sessions'
+        sessions_dir = _get_data_dir('sessions')
         if not os.path.exists(sessions_dir):
             return jsonify({"sessions": []})
         
@@ -1324,8 +1335,7 @@ def update_screen_time():
             return jsonify({"error": "Date is required"}), 400
         
         # Store in data/screen_time directory
-        screen_time_dir = os.path.join('data', 'screen_time')
-        os.makedirs(screen_time_dir, exist_ok=True)
+        screen_time_dir = _get_data_dir('screen_time')
         
         # File path for the date
         file_path = os.path.join(screen_time_dir, f'{date}.json')
@@ -1376,8 +1386,7 @@ def get_screen_time_stats():
     try:
         days = int(request.args.get('days', 7))
         
-        screen_time_dir = os.path.join('data', 'screen_time')
-        os.makedirs(screen_time_dir, exist_ok=True)
+        screen_time_dir = _get_data_dir('screen_time')
         
         stats = []
         total_time = 0
@@ -1453,8 +1462,7 @@ def sync_screen_time():
         session_id = session.get('user_id', f"user_{os.urandom(8).hex()}")
         
         # Store in data/screen_time directory
-        screen_time_dir = os.path.join('data', 'screen_time')
-        os.makedirs(screen_time_dir, exist_ok=True)
+        screen_time_dir = _get_data_dir('screen_time')
         
         # File path for the date
         file_path = os.path.join(screen_time_dir, f'{date}.json')

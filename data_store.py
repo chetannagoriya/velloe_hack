@@ -15,7 +15,8 @@ import time
 
 
 # Constants
-DATA_DIR = Path("data/sessions")
+IS_SERVERLESS = bool(os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+DATA_DIR = Path("/tmp/data/sessions") if IS_SERVERLESS else Path("data/sessions")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 

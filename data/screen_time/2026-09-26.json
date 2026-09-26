@@ -425,7 +425,37 @@
       "sessionId": "user_ebe2e0ff253823ec",
       "totalTime": 1110540,
       "lastUpdated": 1790413633336
+    },
+    {
+      "sessionId": "user_d8e5e3c7c817c238",
+      "totalTime": 1110634,
+      "lastUpdated": 1790414054982
+    },
+    {
+      "sessionId": "user_9bed8dfba670a277",
+      "totalTime": 1138984,
+      "lastUpdated": 1790414083332
+    },
+    {
+      "sessionId": "user_e65c213eef3848a0",
+      "totalTime": 1139023,
+      "lastUpdated": 1790414212623
+    },
+    {
+      "sessionId": "user_bb2eb4d5c855cfd2",
+      "totalTime": 1159197,
+      "lastUpdated": 1790414593330
+    },
+    {
+      "sessionId": "user_f9988d9559300caf",
+      "totalTime": 1162136,
+      "lastUpdated": 1790414623331
+    },
+    {
+      "sessionId": "user_4aaa8beb5933e857",
+      "totalTime": 1163093,
+      "lastUpdated": 1790414624288
     }
   ],
-  "totalTime": 35511149
+  "totalTime": 42384216
 }
