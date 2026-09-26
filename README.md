@@ -10,7 +10,7 @@
 [![face-api.js](https://img.shields.io/badge/Computer_Vision-face--api.js-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://github.com/justadudewhohacks/face-api.js/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-🔗 **Live Deployment:** [https://calmnest-main.vercel.app/](https://calmnest-main.vercel.app/)
+🔗 **Live Deployment:** [https://velloe-hack.vercel.app/](https://velloe-hack.vercel.app/)
 
 ---
 
