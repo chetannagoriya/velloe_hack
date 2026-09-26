@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Test for Face-API</title>
+</head>
+<body>
+    <h1>Face-API.js CORS Test</h1>
+    <div id="status">Testing CDN access...</div>
+    <div id="results"></div>
+    
+    <script>
+        const cdnSources = [
+            'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights',
+            'https://unpkg.com/face-api.js@0.22.2/weights',
+            'https://cdn.statically.io/npm/face-api.js@0.22.2/weights'
+        ];
+        
+        async function testCDNs() {
+            const results = document.getElementById('results');
+            const status = document.getElementById('status');
+            
+            for (const cdn of cdnSources) {
+                try {
+                    const testUrl = cdn + '/tiny_face_detector_model-weights_manifest.json';
+                    console.log('Testing:', testUrl);
+                    
+                    const response = await fetch(testUrl, {
+                        mode: 'cors',
+                        cache: 'no-cache'
+                    });
+                    
+                    if (response.ok) {
+                        results.innerHTML += `<div style="color: green;">✅ ${cdn} - Accessible (${response.status})</div>`;
+                    } else {
+                        results.innerHTML += `<div style="color: red;">❌ ${cdn} - Not accessible (${response.status})</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div style="color: red;">❌ ${cdn} - Error: ${error.message}</div>`;
+                }
+            }
+            
+            status.textContent = 'CDN testing complete';
+        }
+        
+        testCDNs();
+    </script>
+</body>
+</html>

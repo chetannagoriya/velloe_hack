@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Progress Indicator (Workflow Mode Only) -->
+    {% if workflow_mode %}
+    {% include 'components/workflow_progress.html' %}
+    {% endif %}
+    
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+        <div class="glass-card rounded-2xl p-8 card-hover">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="clipboard-list" class="w-8 h-8 text-green-600"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">PHQ-9 Depression Test</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                This simple, widely used questionnaire helps reflect on depressive symptoms over the last 2 weeks.
+            </p>
+        </div>
+    </section>
+
+    <!-- PHQ-9 Form -->
+    <section class="glass-card rounded-2xl p-8 card-hover">
+        <form id="phq9-form" class="space-y-8">
+            <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                <p class="text-blue-800 text-sm font-medium flex items-center">
+                    <i data-lucide="info" class="w-4 h-4 mr-2"></i>
+                    For each question, choose how often you have been bothered by the problem in the last 2 weeks.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                {% set questions = [
+                    "Little interest or pleasure in doing things",
+                    "Feeling down, depressed, or hopeless",
+                    "Trouble falling or staying asleep, or sleeping too much",
+                    "Feeling tired or having little energy",
+                    "Poor appetite or overeating",
+                    "Feeling bad about yourself or that you are a failure or have let yourself or your family down",
+                    "Trouble concentrating on things, such as reading the newspaper or watching television",
+                    "Moving or speaking so slowly that other people could have noticed? Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual",
+                    "Thoughts that you would be better off dead or of hurting yourself in some way"
+                ] %}
+
+                {% for q in questions %}
+                <div class="bg-white rounded-lg p-6 border border-gray-200 hover:border-green-300 transition-colors">
+                    <p class="text-lg font-medium text-gray-800 mb-4">{{ loop.index }}. {{ q }}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input type="radio" name="q{{ loop.index }}" value="0" class="mr-3 text-green-600 focus:ring-green-500" required>
+                            <span class="text-gray-700">Not at all</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input type="radio" name="q{{ loop.index }}" value="1" class="mr-3 text-green-600 focus:ring-green-500">
+                            <span class="text-gray-700">Several days</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input type="radio" name="q{{ loop.index }}" value="2" class="mr-3 text-green-600 focus:ring-green-500">
+                            <span class="text-gray-700">More than half the days</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input type="radio" name="q{{ loop.index }}" value="3" class="mr-3 text-green-600 focus:ring-green-500">
+                            <span class="text-gray-700">Nearly every day</span>
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <button type="submit" class="primary-button text-white px-8 py-3 rounded-lg font-medium inline-flex items-center space-x-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    <span>Calculate PHQ-9 Score</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Results Section -->
+        <div id="phq9-result" class="hidden mt-8">
+            <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+                <h3 class="text-xl font-semibold text-green-900 mb-4">Your Results</h3>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="text-4xl font-bold text-green-600" id="score-display">0</div>
+                </div>
+                <p class="text-green-800 text-center" id="interpretation-text"></p>
+                <div class="mt-4 p-4 bg-white rounded-lg border border-green-200">
+                    <h4 class="font-medium text-gray-900 mb-2">What this means:</h4>
+                    <p class="text-sm text-gray-600" id="recommendation-text"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Score Guide -->
+    <section class="glass-card rounded-2xl p-8 card-hover mt-12">
+        <h3 class="text-2xl font-bold text-gray-900 text-center mb-8">PHQ-9 Score Guide</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-sm">1-4</span>
+                    </div>
+                    <h4 class="font-semibold text-green-900">Minimal Depression</h4>
+                </div>
+                <p class="text-green-800 text-sm">Little to no depressive symptoms. Continue monitoring your mental health.</p>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-sm">5-9</span>
+                    </div>
+                    <h4 class="font-semibold text-yellow-900">Mild Depression</h4>
+                </div>
+                <p class="text-yellow-800 text-sm">Some depressive symptoms present. Consider self-care strategies and monitoring.</p>
+            </div>
+            <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-sm">10-14</span>
+                    </div>
+                    <h4 class="font-semibold text-orange-900">Moderate Depression</h4>
+                </div>
+                <p class="text-orange-800 text-sm">Moderate depressive symptoms. Consider seeking professional help.</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-sm">15+</span>
+                    </div>
+                    <h4 class="font-semibold text-red-900">Moderately Severe/Severe</h4>
+                </div>
+                <p class="text-red-800 text-sm">Significant depressive symptoms. Professional treatment is recommended.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+lucide.createIcons();
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fade-in {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+`;
+document.head.appendChild(style);
+
+document.getElementById('phq9-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let totalScore = 0;
+    let answeredQuestions = 0;
+    const responses = [];
+    
+    for (let i = 1; i <= 9; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected) {
+            const value = parseInt(selected.value);
+            totalScore += value;
+            responses.push(value);
+            answeredQuestions++;
+        }
+    }
+    
+    if (answeredQuestions < 9) {
+        alert('Please answer all questions to get your score.');
+        return;
+    }
+    
+    // Check if we're in workflow mode
+    const workflowMode = {{ 'true' if workflow_mode else 'false' }};
+    
+    if (workflowMode) {
+        // Workflow mode: Submit to backend
+        submitToWorkflow(responses, totalScore);
+    } else {
+        // Standalone mode: Show results
+        showResults(totalScore);
+    }
+});
+
+async function submitToWorkflow(responses, totalScore) {
+    try {
+        const payload = {};
+        responses.forEach((value, index) => {
+            payload[`q${index + 1}`] = value;
+        });
+        
+        const response = await fetch('/complete-analysis/phq9/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Check for crisis detection
+            if (result.crisis_detected) {
+                window.crisisNextUrl = result.redirect || '/complete-analysis/emotion';
+                showCrisisAlert(result.score, result.severity);
+            } else {
+                // Redirect to next step
+                window.location.href = result.redirect;
+            }
+        } else {
+            alert('Error: ' + (result.error || 'Failed to submit'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to submit. Please try again.');
+    }
+}
+
+function showCrisisAlert(score, severity) {
+    // Create crisis alert modal
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto';
+    modal.innerHTML = `
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl animate-fade-in my-auto max-h-[92vh] overflow-y-auto">
+            <!-- Alert Header -->
+            <div class="flex items-center justify-center mb-3">
+                <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-7 h-7 text-red-600"></i>
+                </div>
+            </div>
+            
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
+                Important: High Risk Detected
+            </h2>
+            
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-3 sm:p-4 mb-4">
+                <p class="text-red-900 text-center font-semibold mb-1">
+                    Your PHQ-9 score is ${score}/27 (${severity.replace('_', ' ')})
+                </p>
+                <p class="text-red-800 text-center text-sm">
+                    This indicates severe depression symptoms that require immediate professional attention.
+                </p>
+            </div>
+            
+            <!-- Crisis Resources -->
+            <div class="space-y-3 mb-5">
+                <h3 class="font-bold text-gray-900 text-base">🆘 Immediate Help Available:</h3>
+                
+                <!-- National Helplines -->
+                <div class="bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg p-3 sm:p-4 border border-blue-200">
+                    <h4 class="font-semibold text-blue-900 mb-2 flex items-center text-sm sm:text-base">
+                        <i data-lucide="phone" class="w-4 h-4 mr-2"></i>
+                        24/7 Crisis Helplines (India)
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between bg-white rounded p-2">
+                            <span class="text-gray-700">AASRA (All India)</span>
+                            <a href="tel:9820466726" class="text-blue-600 font-bold hover:underline">9820466726</a>
+                        </div>
+                        <div class="flex items-center justify-between bg-white rounded p-2">
+                            <span class="text-gray-700">Vandrevala Foundation</span>
+                            <a href="tel:18602662345" class="text-blue-600 font-bold hover:underline">1860-2662-345</a>
+                        </div>
+                        <div class="flex items-center justify-between bg-white rounded p-2">
+                            <span class="text-gray-700">iCall (TISS)</span>
+                            <a href="tel:9152987821" class="text-blue-600 font-bold hover:underline">9152987821</a>
+                        </div>
+                        <div class="flex items-center justify-between bg-white rounded p-2">
+                            <span class="text-gray-700">Sneha Foundation</span>
+                            <a href="tel:04424640050" class="text-blue-600 font-bold hover:underline">044-24640050</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Professional Help -->
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 sm:p-4 border border-purple-200">
+                    <h4 class="font-semibold text-purple-900 mb-2 flex items-center text-sm sm:text-base">
+                        <i data-lucide="user-check" class="w-4 h-4 mr-2"></i>
+                        Seek Professional Help
+                    </h4>
+                    <ul class="space-y-1.5 text-xs sm:text-sm text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span>Contact a mental health professional (psychiatrist or psychologist)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span>Visit your nearest hospital emergency department if in crisis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span>Talk to your primary care doctor about treatment options</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Immediate Safety -->
+                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-3 sm:p-4 border border-orange-200">
+                    <h4 class="font-semibold text-orange-900 mb-2 flex items-center text-sm sm:text-base">
+                        <i data-lucide="shield" class="w-4 h-4 mr-2"></i>
+                        Immediate Safety Steps
+                    </h4>
+                    <ul class="space-y-1.5 text-xs sm:text-sm text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span>Reach out to a trusted friend or family member</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span>Don't stay alone - be with someone you trust</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span>Remove any means of self-harm from your environment</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                <a href="tel:9820466726" class="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors text-center flex items-center justify-center">
+                    <i data-lucide="phone-call" class="w-5 h-5 mr-2"></i>
+                    Call Helpline Now
+                </a>
+                <button onclick="closeCrisisAlert()" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                    I Understand, Continue
+                </button>
+            </div>
+            
+            <p class="text-xs text-gray-500 text-center mt-3">
+                ⚠️ This is not a substitute for professional medical advice. Please seek immediate help.
+            </p>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    lucide.createIcons();
+    
+    // Store modal reference
+    window.crisisModal = modal;
+}
+
+function closeCrisisAlert() {
+    if (window.crisisModal) {
+        window.crisisModal.remove();
+        // Continue to next step
+        if (window.crisisNextUrl) {
+            window.location.href = window.crisisNextUrl;
+        } else {
+            window.location.href = '/complete-analysis/emotion';
+        }
+    }
+}
+
+function showResults(totalScore) {
+    // Check for crisis (score > 20)
+    if (totalScore > 20) {
+        window.crisisNextUrl = null;
+        showCrisisAlert(totalScore, 'severe');
+        return;
+    }
+    
+    // Show results
+    const resultDiv = document.getElementById('phq9-result');
+    const scoreDisplay = document.getElementById('score-display');
+    const interpretationText = document.getElementById('interpretation-text');
+    const recommendationText = document.getElementById('recommendation-text');
+    
+    scoreDisplay.textContent = totalScore;
+    
+    let interpretation, recommendation;
+    if (totalScore <= 4) {
+        interpretation = "Minimal depression";
+        recommendation = "Your symptoms suggest minimal depression. Continue to monitor your mental health and practice self-care strategies like regular exercise, good sleep, and social connections.";
+    } else if (totalScore <= 9) {
+        interpretation = "Mild depression";
+        recommendation = "Your symptoms suggest mild depression. Consider talking to a friend or family member, practicing stress management techniques, and monitoring your symptoms. If symptoms persist, consider professional help.";
+    } else if (totalScore <= 14) {
+        interpretation = "Moderate depression";
+        recommendation = "Your symptoms suggest moderate depression. It's recommended to speak with a healthcare professional about your symptoms. They can help determine the best treatment approach for you.";
+    } else if (totalScore <= 19) {
+        interpretation = "Moderately severe depression";
+        recommendation = "Your symptoms suggest moderately severe depression. It's important to seek professional help from a healthcare provider. They can provide appropriate treatment and support.";
+    } else {
+        interpretation = "Severe depression";
+        recommendation = "Your symptoms suggest severe depression. Immediate professional help is strongly recommended. Please contact a mental health professional or crisis helpline.";
+    }
+    
+    interpretationText.textContent = interpretation;
+    recommendationText.textContent = recommendation;
+    
+    resultDiv.classList.remove('hidden');
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,873 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+        <div class="glass-card rounded-2xl p-8 card-hover">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center animate-pulse">
+                    <i data-lucide="wind" class="w-8 h-8 text-teal-600"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Breathing Exercises & Meditation</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Choose from evidence-based breathing practices inspired by traditional Yoga and modern mental health research
+            </p>
+        </div>
+    </section>
+
+    <!-- Technique Selector -->
+    <section class="mb-12">
+        <div class="glass-card rounded-2xl p-8">
+            <h3 class="text-2xl font-bold text-gray-900 text-center mb-6">Select a Technique</h3>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4" id="technique-grid">
+                <!-- Techniques will be dynamically loaded -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Breathing Exercise -->
+    <section class="flex flex-col items-center mb-16">
+        <div class="glass-card rounded-2xl p-12 card-hover w-full max-w-2xl">
+            <div class="flex flex-col items-center space-y-8">
+                <!-- Technique Name -->
+                <div class="text-center">
+                    <h3 id="technique-name" class="text-2xl font-bold text-gray-900 mb-2">Select a technique above</h3>
+                    <p id="technique-description" class="text-sm text-gray-600"></p>
+                </div>
+
+                <!-- Breathing Circle with Animated Guide -->
+                <div class="relative">
+                    <!-- Background circle -->
+                    <div class="w-40 h-40 rounded-full bg-gradient-to-br from-teal-100 to-blue-100 shadow-lg"></div>
+                    
+                    <!-- Main breathing circle -->
+                    <div id="breathe-circle" class="absolute inset-0 w-40 h-40 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 shadow-2xl"></div>
+                    
+                    <!-- Animated Visual Guide (for special techniques) -->
+                    <div id="visual-guide" class="absolute inset-0 w-40 h-40 hidden">
+                        <!-- Anulom-Vilom: Nostril Animation -->
+                        <div id="nostril-guide" class="hidden">
+                            <svg class="w-full h-full" viewBox="0 0 160 160">
+                                <!-- Face outline -->
+                                <circle cx="80" cy="80" r="70" fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+                                
+                                <!-- Left nostril -->
+                                <g id="left-nostril">
+                                    <circle cx="60" cy="90" r="8" fill="#10b981" opacity="0.3" class="nostril-indicator"/>
+                                    <circle cx="60" cy="90" r="12" fill="none" stroke="#10b981" stroke-width="2" opacity="0" class="nostril-pulse"/>
+                                    <path d="M 60 70 Q 55 80, 60 90" stroke="#10b981" stroke-width="3" fill="none" opacity="0" class="air-flow"/>
+                                </g>
+                                
+                                <!-- Right nostril -->
+                                <g id="right-nostril">
+                                    <circle cx="100" cy="90" r="8" fill="#10b981" opacity="0.3" class="nostril-indicator"/>
+                                    <circle cx="100" cy="90" r="12" fill="none" stroke="#10b981" stroke-width="2" opacity="0" class="nostril-pulse"/>
+                                    <path d="M 100 70 Q 105 80, 100 90" stroke="#10b981" stroke-width="3" fill="none" opacity="0" class="air-flow"/>
+                                </g>
+                                
+                                <!-- Hand position indicator -->
+                                <g id="hand-indicator" opacity="0.5">
+                                    <path d="M 110 85 L 115 90 L 110 95" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"/>
+                                    <text x="120" y="93" font-size="10" fill="#f59e0b" font-weight="bold">👆</text>
+                                </g>
+                            </svg>
+                        </div>
+                        
+                        <!-- Bhramari: Sound Wave Animation -->
+                        <div id="sound-guide" class="hidden">
+                            <svg class="w-full h-full" viewBox="0 0 160 160">
+                                <g id="sound-waves">
+                                    <circle cx="80" cy="80" r="30" fill="none" stroke="#eab308" stroke-width="2" opacity="0" class="wave wave-1"/>
+                                    <circle cx="80" cy="80" r="45" fill="none" stroke="#eab308" stroke-width="2" opacity="0" class="wave wave-2"/>
+                                    <circle cx="80" cy="80" r="60" fill="none" stroke="#eab308" stroke-width="2" opacity="0" class="wave wave-3"/>
+                                </g>
+                                <text x="80" y="85" text-anchor="middle" font-size="24" fill="#eab308" font-weight="bold">🐝</text>
+                                <text x="80" y="105" text-anchor="middle" font-size="12" fill="#eab308">mmm...</text>
+                            </svg>
+                        </div>
+                        
+                        <!-- Awareness: Gentle Flow -->
+                        <div id="awareness-guide" class="hidden">
+                            <svg class="w-full h-full" viewBox="0 0 160 160">
+                                <g id="flow-particles">
+                                    <circle cx="80" cy="40" r="3" fill="#06b6d4" opacity="0" class="particle p1"/>
+                                    <circle cx="80" cy="50" r="3" fill="#06b6d4" opacity="0" class="particle p2"/>
+                                    <circle cx="80" cy="60" r="3" fill="#06b6d4" opacity="0" class="particle p3"/>
+                                </g>
+                                <text x="80" y="85" text-anchor="middle" font-size="20" fill="#06b6d4" font-weight="bold">👁️</text>
+                                <text x="80" y="105" text-anchor="middle" font-size="10" fill="#06b6d4">Observe</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Breathing Text -->
+                <div class="text-center">
+                    <h2 id="breathe-text" class="text-4xl font-bold text-gray-900 mb-2">Ready</h2>
+                    <p id="breathe-instruction" class="text-gray-600 text-lg">Select a technique and press Start</p>
+                    <p id="breath-count" class="text-sm text-teal-600 mt-3 font-semibold">Breaths: 0</p>
+                </div>
+                
+                <!-- Controls -->
+                <div class="flex space-x-4">
+                    <button id="start-breathing" class="primary-button text-white px-8 py-3 rounded-lg font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i data-lucide="play" class="w-5 h-5"></i>
+                        <span>Start</span>
+                    </button>
+                    <button id="pause-breathing" class="bg-white border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center space-x-2 disabled:opacity-50" disabled>
+                        <i data-lucide="pause" class="w-5 h-5"></i>
+                        <span>Pause</span>
+                    </button>
+                    <button id="reset-breathing" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors flex items-center space-x-2">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructions -->
+    <section class="mb-12">
+        <div class="glass-card rounded-2xl p-8">
+            <h3 class="text-2xl font-bold text-gray-900 text-center mb-8">How to Practice</h3>
+            <div id="technique-instructions" class="grid md:grid-cols-3 gap-8">
+                <!-- Instructions will be dynamically loaded -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section>
+        <div class="glass-card rounded-2xl p-8">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full mb-4 animate-pulse">
+                    <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Benefits of Breathing Exercises</h3>
+                <p class="text-gray-600 max-w-2xl mx-auto">Regular practice brings significant improvements to your mental and physical well-being</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Mental Health -->
+                <div class="benefit-card bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-100">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="brain" class="w-5 h-5 text-purple-600"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900">Mental Health</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span><span>Reduces anxiety and stress</span></li>
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span><span>Improves mood regulation</span></li>
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span><span>Manages depression symptoms</span></li>
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span><span>Calms racing thoughts</span></li>
+                    </ul>
+                </div>
+
+                <!-- Physical Health -->
+                <div class="benefit-card bg-gradient-to-br from-teal-50 to-green-50 rounded-xl p-6 border border-teal-100">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="heart-pulse" class="w-5 h-5 text-teal-600"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900">Physical Health</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span>Lowers blood pressure</span></li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span>Reduces muscle tension</span></li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span>Improves oxygen flow</span></li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span>Boosts immune system</span></li>
+                    </ul>
+                </div>
+
+                <!-- Sleep & Energy -->
+                <div class="benefit-card bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="moon" class="w-5 h-5 text-indigo-600"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900">Sleep & Energy</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span>Improves sleep quality</span></li>
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span>Helps with insomnia</span></li>
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span>Increases energy levels</span></li>
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span>Reduces fatigue</span></li>
+                    </ul>
+                </div>
+
+                <!-- Focus & Clarity -->
+                <div class="benefit-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="target" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900">Focus & Clarity</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span><span>Enhances concentration</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span><span>Improves mental clarity</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span><span>Increases mindfulness</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span><span>Better decision making</span></li>
+                    </ul>
+                </div>
+
+                <!-- Emotional Balance -->
+                <div class="benefit-card bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-6 border border-pink-100">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="smile" class="w-5 h-5 text-pink-600"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900">Emotional Balance</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span><span>Reduces emotional reactivity</span></li>
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span><span>Promotes inner calm</span></li>
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span><span>Builds resilience</span></li>
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span><span>Enhances self-awareness</span></li>
+                    </ul>
+                </div>
+
+                <!-- Long-term Benefits -->
+                <div class="benefit-card bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-orange-600"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900">Long-term Benefits</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start"><span class="text-orange-500 mr-2">✓</span><span>Builds stress resilience</span></li>
+                        <li class="flex items-start"><span class="text-orange-500 mr-2">✓</span><span>Improves overall well-being</span></li>
+                        <li class="flex items-start"><span class="text-orange-500 mr-2">✓</span><span>Supports healthy aging</span></li>
+                        <li class="flex items-start"><span class="text-orange-500 mr-2">✓</span><span>Creates positive habits</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Pro Tips -->
+            <div class="mt-8 bg-gradient-to-r from-teal-50 to-blue-50 rounded-xl p-6 border-2 border-teal-200">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="lightbulb" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-2">💡 Pro Tips for Maximum Benefits</h4>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex items-start"><span class="text-teal-600 font-bold mr-2">•</span><span><strong>Practice daily:</strong> Even 5 minutes makes a difference</span></li>
+                            <li class="flex items-start"><span class="text-teal-600 font-bold mr-2">•</span><span><strong>Find quiet space:</strong> Minimize distractions</span></li>
+                            <li class="flex items-start"><span class="text-teal-600 font-bold mr-2">•</span><span><strong>Be patient:</strong> Benefits increase over time</span></li>
+                            <li class="flex items-start"><span class="text-teal-600 font-bold mr-2">•</span><span><strong>Use anytime:</strong> During stress, before sleep, or when overwhelmed</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scientific Note -->
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600 italic">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline text-green-600"></i>
+                    Benefits supported by scientific research and clinical studies
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<style>
+@keyframes breatheIn {
+    from { transform: scale(0.7); opacity: 0.6; }
+    to { transform: scale(1.6); opacity: 1; }
+}
+
+@keyframes breatheOut {
+    from { transform: scale(1.6); opacity: 1; }
+    to { transform: scale(0.7); opacity: 0.6; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(20, 184, 166, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(20, 184, 166, 0.8); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 0 60px rgba(59, 130, 246, 0.9); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Nostril animations for Anulom-Vilom */
+@keyframes nostrilPulse {
+    0% { opacity: 0; r: 12; }
+    50% { opacity: 0.8; r: 18; }
+    100% { opacity: 0; r: 12; }
+}
+
+@keyframes airFlow {
+    0% { opacity: 0; stroke-dashoffset: 50; }
+    50% { opacity: 1; stroke-dashoffset: 25; }
+    100% { opacity: 0; stroke-dashoffset: 0; }
+}
+
+@keyframes nostrilActive {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* Sound wave animations for Bhramari */
+@keyframes soundWave {
+    0% { opacity: 0; r: 30; }
+    50% { opacity: 0.6; r: 45; }
+    100% { opacity: 0; r: 60; }
+}
+
+/* Particle flow for Awareness */
+@keyframes particleFlow {
+    0% { opacity: 0; cy: 40; }
+    50% { opacity: 0.8; cy: 80; }
+    100% { opacity: 0; cy: 120; }
+}
+
+#breathe-circle {
+    transition: all 0.3s ease;
+}
+
+#breathe-circle.inhaling {
+    animation: breatheIn var(--duration) ease-in-out forwards;
+}
+
+#breathe-circle.exhaling {
+    animation: breatheOut var(--duration) ease-in-out forwards;
+}
+
+#breathe-circle.humming {
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+/* Visual guide animations */
+.nostril-pulse.active {
+    animation: nostrilPulse 2s ease-in-out infinite;
+}
+
+.air-flow {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+}
+
+.air-flow.active {
+    animation: airFlow 2s ease-in-out infinite;
+}
+
+.nostril-indicator.active {
+    animation: nostrilActive 2s ease-in-out infinite;
+    fill: #10b981;
+}
+
+#sound-waves.active .wave {
+    animation: soundWave 2s ease-out infinite;
+}
+
+.wave-1 { animation-delay: 0s; }
+.wave-2 { animation-delay: 0.3s; }
+.wave-3 { animation-delay: 0.6s; }
+
+#flow-particles.active .particle {
+    animation: particleFlow 3s ease-in-out infinite;
+}
+
+.p1 { animation-delay: 0s; }
+.p2 { animation-delay: 0.5s; }
+.p3 { animation-delay: 1s; }
+
+.technique-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.technique-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.technique-card.selected {
+    border-color: #14b8a6 !important;
+    background-color: #f0fdfa !important;
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.3) !important;
+    transform: translateY(-4px);
+}
+
+.benefit-card {
+    animation: fadeInUp 0.6s ease-out;
+    transition: transform 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-4px);
+}
+</style>
+
+<script>
+const techniques = {
+    diaphragmatic: {
+        name: 'Diaphragmatic Breathing',
+        emoji: '🫁',
+        description: 'Slow belly breathing for emotional heaviness and fatigue',
+        inhale: 4, exhale: 6, hold: 0,
+        color: '#14b8a6', hoverColor: 'teal',
+        bestFor: 'Emotional heaviness, fatigue',
+        instructions: [
+            { icon: 'hand', color: 'teal', title: 'Belly Focus', text: 'Place hand on belly, feel it rise and fall' },
+            { icon: 'arrow-up', color: 'blue', title: 'Inhale 4 sec', text: 'Breathe deeply into belly through nose' },
+            { icon: 'arrow-down', color: 'teal', title: 'Exhale 6 sec', text: 'Slowly release, belly falls' }
+        ]
+    },
+    calming: {
+        name: '4-6 Calming Breath',
+        emoji: '😌',
+        description: 'Extended exhale for calm - Low mood + anxiety mix',
+        inhale: 4, exhale: 6, hold: 0,
+        color: '#3b82f6', hoverColor: 'blue',
+        bestFor: 'Low mood + anxiety mix',
+        instructions: [
+            { icon: 'arrow-up', color: 'blue', title: 'Inhale 4 sec', text: 'Breathe in gently through nose' },
+            { icon: 'arrow-down', color: 'teal', title: 'Exhale 6 sec', text: 'Breathe out slowly, longer exhale' },
+            { icon: 'heart', color: 'blue', title: 'Feel Calm', text: 'Extended exhale activates relaxation' }
+        ]
+    },
+    box: {
+        name: 'Box Breathing',
+        emoji: '⬜',
+        description: 'Structured 4-4-4-4 pattern for focus and stability',
+        inhale: 4, exhale: 4, hold: 4, holdAfter: 4,
+        color: '#a855f7', hoverColor: 'purple',
+        bestFor: 'Focus + emotional stabilization',
+        instructions: [
+            { icon: 'arrow-up', color: 'purple', title: 'Inhale 4 sec', text: 'Breathe in through nose' },
+            { icon: 'pause', color: 'gray', title: 'Hold 4 sec', text: 'Hold breath comfortably' },
+            { icon: 'arrow-down', color: 'purple', title: 'Exhale 4 sec', text: 'Breathe out through mouth' },
+            { icon: 'pause', color: 'gray', title: 'Hold 4 sec', text: 'Hold empty, then repeat' }
+        ]
+    },
+    relaxation: {
+        name: '4-7-8 Relaxation',
+        emoji: '😴',
+        description: 'Deep relaxation for sleep issues and racing thoughts',
+        inhale: 4, exhale: 8, hold: 7,
+        color: '#6366f1', hoverColor: 'indigo',
+        bestFor: 'Sleep issues + racing thoughts',
+        instructions: [
+            { icon: 'arrow-up', color: 'indigo', title: 'Inhale 4 sec', text: 'Breathe in quietly through nose' },
+            { icon: 'pause', color: 'gray', title: 'Hold 7 sec', text: 'Hold breath gently' },
+            { icon: 'arrow-down', color: 'indigo', title: 'Exhale 8 sec', text: 'Exhale with whoosh sound' }
+        ]
+    },
+    energizing: {
+        name: 'Energizing Breath',
+        emoji: '⚡',
+        description: 'Mild activation for low energy depression phase',
+        inhale: 5, exhale: 4, hold: 2,
+        color: '#f97316', hoverColor: 'orange',
+        bestFor: 'Low energy depression phase',
+        instructions: [
+            { icon: 'arrow-up', color: 'orange', title: 'Deep Inhale 5 sec', text: 'Breathe in deeply through nose' },
+            { icon: 'pause', color: 'gray', title: 'Hold 2 sec', text: 'Brief hold at top' },
+            { icon: 'arrow-down', color: 'orange', title: 'Exhale 4 sec', text: 'Release steadily' }
+        ]
+    },
+    anulomvilom: {
+        name: 'Anulom-Vilom Pranayama',
+        emoji: '🧘',
+        description: 'Alternate nostril breathing - Traditional Yogic practice',
+        inhale: 4, exhale: 4, hold: 2, holdAfter: 2,
+        color: '#10b981', hoverColor: 'green',
+        bestFor: 'Balance, stress relief, clarity',
+        special: 'alternate',
+        instructions: [
+            { icon: 'hand', color: 'green', title: 'Hand Position', text: 'Use thumb and ring finger for nostrils' },
+            { icon: 'arrow-up', color: 'green', title: 'Inhale Left', text: 'Close right, breathe in left nostril' },
+            { icon: 'pause', color: 'gray', title: 'Hold', text: 'Close both nostrils briefly' },
+            { icon: 'arrow-down', color: 'green', title: 'Exhale Right', text: 'Open right, exhale. Then reverse' }
+        ]
+    },
+    bhramari: {
+        name: 'Bhramari Pranayama',
+        emoji: '🐝',
+        description: 'Humming bee breath - Calming vibration technique',
+        inhale: 4, exhale: 8, hold: 0,
+        color: '#eab308', hoverColor: 'yellow',
+        bestFor: 'Anxiety, anger, frustration',
+        special: 'humming',
+        instructions: [
+            { icon: 'ear', color: 'yellow', title: 'Close Ears', text: 'Gently close ears with index fingers' },
+            { icon: 'arrow-up', color: 'yellow', title: 'Inhale 4 sec', text: 'Breathe in slowly through nose' },
+            { icon: 'volume-2', color: 'yellow', title: 'Hum 8 sec', text: 'Exhale making "mmm" sound like bee' },
+            { icon: 'heart', color: 'yellow', title: 'Feel Vibration', text: 'Notice calming vibration' }
+        ]
+    },
+    awareness: {
+        name: 'Breath Awareness',
+        emoji: '🌬️',
+        description: 'Simple mindfulness - Observe natural breath',
+        inhale: 0, exhale: 0, hold: 0,
+        color: '#06b6d4', hoverColor: 'cyan',
+        bestFor: 'Mindfulness, present moment',
+        special: 'awareness',
+        instructions: [
+            { icon: 'eye', color: 'cyan', title: 'Observe', text: 'Watch natural breath without changing' },
+            { icon: 'wind', color: 'cyan', title: 'Notice Flow', text: 'Feel air entering and leaving' },
+            { icon: 'focus', color: 'cyan', title: 'Stay Present', text: 'When mind wanders, return to breath' }
+        ]
+    }
+};
+
+let currentTechnique = null;
+let isPlaying = false;
+let breathCount = 0;
+let animationInterval = null;
+let currentPhase = 'ready';
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    loadTechniques();
+    setupEventListeners();
+});
+
+function loadTechniques() {
+    const grid = document.getElementById('technique-grid');
+    let html = '';
+    
+    Object.keys(techniques).forEach((key, index) => {
+        const tech = techniques[key];
+        html += `
+            <button onclick="selectTechnique('${key}')" class="technique-card p-6 rounded-xl border-2 border-gray-200 hover:border-${tech.hoverColor}-500 hover:bg-${tech.hoverColor}-50 transition-all text-left" style="animation-delay: ${index * 0.1}s">
+                <div class="flex items-start space-x-3 mb-3">
+                    <div class="w-10 h-10 bg-${tech.hoverColor}-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span class="text-xl">${tech.emoji}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-1">${tech.name}</h4>
+                        <p class="text-xs text-gray-600">${tech.inhale > 0 ? `${tech.inhale}-${tech.exhale}` : 'Natural'}</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">${tech.description.split('-')[0]}</p>
+                <p class="text-xs text-${tech.hoverColor}-600 font-medium">Best for: ${tech.bestFor}</p>
+            </button>
+        `;
+    });
+    
+    grid.innerHTML = html;
+}
+
+function selectTechnique(key) {
+    currentTechnique = techniques[key];
+    
+    // Update selected card
+    document.querySelectorAll('.technique-card').forEach(card => card.classList.remove('selected'));
+    event.target.closest('.technique-card').classList.add('selected');
+    
+    // Update UI
+    document.getElementById('technique-name').textContent = currentTechnique.name;
+    document.getElementById('technique-description').textContent = currentTechnique.description;
+    document.getElementById('breathe-text').textContent = 'Ready';
+    document.getElementById('breathe-instruction').textContent = 'Press Start to begin';
+    
+    // Update circle color
+    const circle = document.getElementById('breathe-circle');
+    circle.style.background = `linear-gradient(135deg, ${currentTechnique.color}, ${currentTechnique.color}dd)`;
+    
+    // Show/hide visual guides based on technique
+    showVisualGuide(currentTechnique.special);
+    
+    // Update instructions
+    updateInstructions();
+    
+    // Enable start button
+    document.getElementById('start-breathing').disabled = false;
+    
+    resetBreathing();
+}
+
+function showVisualGuide(specialType) {
+    // Hide all guides first
+    document.getElementById('visual-guide').classList.add('hidden');
+    document.getElementById('nostril-guide').classList.add('hidden');
+    document.getElementById('sound-guide').classList.add('hidden');
+    document.getElementById('awareness-guide').classList.add('hidden');
+    
+    // Deactivate all animations
+    document.getElementById('sound-waves')?.classList.remove('active');
+    document.getElementById('flow-particles')?.classList.remove('active');
+    
+    // Show specific guide if special technique
+    if (specialType === 'alternate') {
+        document.getElementById('visual-guide').classList.remove('hidden');
+        document.getElementById('nostril-guide').classList.remove('hidden');
+    } else if (specialType === 'humming') {
+        document.getElementById('visual-guide').classList.remove('hidden');
+        document.getElementById('sound-guide').classList.remove('hidden');
+    } else if (specialType === 'awareness') {
+        document.getElementById('visual-guide').classList.remove('hidden');
+        document.getElementById('awareness-guide').classList.remove('hidden');
+        // Activate particle flow animation
+        setTimeout(() => {
+            document.getElementById('flow-particles')?.classList.add('active');
+        }, 100);
+    }
+}
+
+function updateInstructions() {
+    const container = document.getElementById('technique-instructions');
+    let html = '';
+    
+    currentTechnique.instructions.forEach(inst => {
+        html += `
+            <div class="text-center">
+                <div class="w-12 h-12 bg-${inst.color}-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="${inst.icon}" class="w-6 h-6 text-${inst.color}-600"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">${inst.title}</h4>
+                <p class="text-gray-600 text-sm">${inst.text}</p>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function setupEventListeners() {
+    document.getElementById('start-breathing').addEventListener('click', startBreathing);
+    document.getElementById('pause-breathing').addEventListener('click', pauseBreathing);
+    document.getElementById('reset-breathing').addEventListener('click', resetBreathing);
+}
+
+function startBreathing() {
+    if (!currentTechnique) return;
+    
+    isPlaying = true;
+    document.getElementById('start-breathing').disabled = true;
+    document.getElementById('pause-breathing').disabled = false;
+    
+    runBreathingCycle();
+}
+
+function pauseBreathing() {
+    isPlaying = false;
+    document.getElementById('start-breathing').disabled = false;
+    document.getElementById('pause-breathing').disabled = true;
+    
+    if (animationInterval) clearTimeout(animationInterval);
+    
+    const circle = document.getElementById('breathe-circle');
+    circle.classList.remove('inhaling', 'exhaling', 'humming');
+    
+    // Deactivate all visual guide animations
+    document.getElementById('sound-waves')?.classList.remove('active');
+    document.getElementById('flow-particles')?.classList.remove('active');
+    deactivateNostrils();
+}
+
+function resetBreathing() {
+    pauseBreathing();
+    breathCount = 0;
+    document.getElementById('breath-count').textContent = `Breaths: ${breathCount}`;
+    document.getElementById('breathe-text').textContent = 'Ready';
+    document.getElementById('breathe-instruction').textContent = currentTechnique ? 'Press Start to begin' : 'Select a technique';
+    
+    const circle = document.getElementById('breathe-circle');
+    circle.classList.remove('inhaling', 'exhaling', 'humming');
+    circle.style.transform = 'scale(1)';
+    
+    // Deactivate all visual guide animations
+    document.getElementById('sound-waves')?.classList.remove('active');
+    document.getElementById('flow-particles')?.classList.remove('active');
+    deactivateNostrils();
+}
+
+function runBreathingCycle() {
+    if (!isPlaying) return;
+    
+    const tech = currentTechnique;
+    const circle = document.getElementById('breathe-circle');
+    
+    // Special: Awareness meditation
+    if (tech.special === 'awareness') {
+        updateBreathUI('Observe', 'Simply watch your natural breath');
+        circle.style.setProperty('--duration', '3s');
+        circle.classList.add('inhaling');
+        
+        animationInterval = setTimeout(() => {
+            if (!isPlaying) return;
+            circle.classList.remove('inhaling');
+            circle.classList.add('exhaling');
+            updateBreathUI('Notice', 'Feel the air flow naturally');
+            
+            animationInterval = setTimeout(() => {
+                completeBreath();
+            }, 3000);
+        }, 3000);
+        return;
+    }
+    
+    // Special: Bhramari (humming)
+    if (tech.special === 'humming') {
+        updateBreathUI('Inhale', 'Breathe in through your nose');
+        circle.style.setProperty('--duration', `${tech.inhale}s`);
+        circle.classList.add('inhaling');
+        
+        animationInterval = setTimeout(() => {
+            if (!isPlaying) return;
+            circle.classList.remove('inhaling');
+            circle.classList.add('humming');
+            updateBreathUI('Hum', 'Make soft humming sound "mmmmm"');
+            
+            // Activate sound wave animation
+            document.getElementById('sound-waves')?.classList.add('active');
+            
+            animationInterval = setTimeout(() => {
+                circle.classList.remove('humming');
+                document.getElementById('sound-waves')?.classList.remove('active');
+                completeBreath();
+            }, tech.exhale * 1000);
+        }, tech.inhale * 1000);
+        return;
+    }
+    
+    // Special: Anulom-Vilom (alternate nostril)
+    if (tech.special === 'alternate') {
+        const isLeft = breathCount % 2 === 0;
+        const nostril = isLeft ? 'left' : 'right';
+        const nextNostril = isLeft ? 'right' : 'left';
+        
+        // Activate visual guide for current nostril
+        activateNostril(nostril, 'inhale');
+        
+        updateBreathUI('Inhale', `Breathe in through ${nostril} nostril`);
+        circle.style.setProperty('--duration', `${tech.inhale}s`);
+        circle.classList.add('inhaling');
+        
+        animationInterval = setTimeout(() => {
+            if (!isPlaying) return;
+            circle.classList.remove('inhaling');
+            deactivateNostrils();
+            updateBreathUI('Hold', 'Hold breath gently');
+            
+            animationInterval = setTimeout(() => {
+                if (!isPlaying) return;
+                
+                // Activate visual guide for next nostril
+                activateNostril(nextNostril, 'exhale');
+                
+                circle.classList.add('exhaling');
+                updateBreathUI('Exhale', `Breathe out through ${nextNostril} nostril`);
+                
+                animationInterval = setTimeout(() => {
+                    circle.classList.remove('exhaling');
+                    deactivateNostrils();
+                    completeBreath();
+                }, tech.exhale * 1000);
+            }, tech.hold * 1000);
+        }, tech.inhale * 1000);
+        return;
+    }
+    
+    // Standard breathing cycle
+    updateBreathUI('Inhale', 'Breathe in through your nose');
+    circle.style.setProperty('--duration', `${tech.inhale}s`);
+    circle.classList.add('inhaling');
+    
+    animationInterval = setTimeout(() => {
+        if (!isPlaying) return;
+        circle.classList.remove('inhaling');
+        
+        if (tech.hold > 0) {
+            updateBreathUI('Hold', 'Hold your breath gently');
+            
+            animationInterval = setTimeout(() => {
+                if (!isPlaying) return;
+                circle.classList.add('exhaling');
+                updateBreathUI('Exhale', 'Breathe out slowly');
+                
+                animationInterval = setTimeout(() => {
+                    circle.classList.remove('exhaling');
+                    
+                    if (tech.holdAfter > 0) {
+                        updateBreathUI('Hold', 'Hold empty lungs');
+                        
+                        animationInterval = setTimeout(() => {
+                            completeBreath();
+                        }, tech.holdAfter * 1000);
+                    } else {
+                        completeBreath();
+                    }
+                }, tech.exhale * 1000);
+            }, tech.hold * 1000);
+        } else {
+            circle.classList.add('exhaling');
+            updateBreathUI('Exhale', 'Breathe out slowly');
+            
+            animationInterval = setTimeout(() => {
+                circle.classList.remove('exhaling');
+                completeBreath();
+            }, tech.exhale * 1000);
+        }
+    }, tech.inhale * 1000);
+}
+
+function completeBreath() {
+    if (!isPlaying) return;
+    breathCount++;
+    document.getElementById('breath-count').textContent = `Breaths: ${breathCount}`;
+    runBreathingCycle();
+}
+
+function updateBreathUI(phase, instruction) {
+    currentPhase = phase;
+    document.getElementById('breathe-text').textContent = phase;
+    document.getElementById('breathe-instruction').textContent = instruction;
+}
+
+// Visual guide helper functions
+function activateNostril(nostril, action) {
+    const nostrilId = nostril === 'left' ? 'left-nostril' : 'right-nostril';
+    const nostrilElement = document.getElementById(nostrilId);
+    
+    if (nostrilElement) {
+        // Activate nostril indicator
+        const indicator = nostrilElement.querySelector('.nostril-indicator');
+        const pulse = nostrilElement.querySelector('.nostril-pulse');
+        const airFlow = nostrilElement.querySelector('.air-flow');
+        
+        if (indicator) indicator.classList.add('active');
+        if (pulse) pulse.classList.add('active');
+        if (airFlow) airFlow.classList.add('active');
+    }
+}
+
+function deactivateNostrils() {
+    ['left-nostril', 'right-nostril'].forEach(id => {
+        const nostrilElement = document.getElementById(id);
+        if (nostrilElement) {
+            const indicator = nostrilElement.querySelector('.nostril-indicator');
+            const pulse = nostrilElement.querySelector('.nostril-pulse');
+            const airFlow = nostrilElement.querySelector('.air-flow');
+            
+            if (indicator) indicator.classList.remove('active');
+            if (pulse) pulse.classList.remove('active');
+            if (airFlow) airFlow.classList.remove('active');
+        }
+    });
+}
+</script>
+
+{% endblock %}

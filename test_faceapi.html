@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face-API.js Test</title>
+</head>
+<body>
+    <h1>Face-API.js Loading Test</h1>
+    <div id="status">Loading...</div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script>
+        setTimeout(() => {
+            if (typeof faceapi !== 'undefined') {
+                document.getElementById('status').innerHTML = '✅ face-api.js loaded successfully!';
+                console.log('face-api version:', faceapi.version);
+            } else {
+                document.getElementById('status').innerHTML = '❌ face-api.js failed to load';
+                console.error('face-api is undefined');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

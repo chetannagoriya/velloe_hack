@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Progress Indicator (Workflow Mode Only) -->
+    {% if workflow_mode %}
+    <div class="max-w-4xl mx-auto mb-8">
+        {% include 'components/workflow_progress.html' %}
+    </div>
+    {% endif %}
+    
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+        <div class="glass-card rounded-2xl p-8 card-hover">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="camera" class="w-8 h-8 text-blue-600"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">{% if workflow_mode %}Emotion Detection{% else %}AI Mood Detection{% endif %}</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+                {% if workflow_mode %}
+                Apne mood ko detect karne ke liye camera access allow karein. Yeh step optional hai.
+                {% else %}
+                Experience real-time emotion detection using advanced face-api.js technology in your browser.
+                {% endif %}
+            </p>
+            {% if not workflow_mode %}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/emotion_model" class="primary-button text-white px-8 py-4 rounded-lg font-medium flex items-center justify-center space-x-2 text-lg">
+                    <i data-lucide="play" class="w-6 h-6"></i>
+                    <span>Launch Emotion Detection</span>
+                </a>
+                <div class="flex items-center justify-center text-gray-600">
+                    <i data-lucide="shield" class="w-5 h-5 mr-2"></i>
+                    <span class="text-sm">Privacy-first • Runs in browser • No data uploaded</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if workflow_mode %}
+    <!-- Emotion Detection Interface (Workflow Mode) -->
+    <div class="grid lg:grid-cols-3 gap-8 mb-8">
+        <!-- Video Section -->
+        <div class="lg:col-span-2">
+            <div class="glass-card rounded-2xl p-6 card-hover">
+                <div class="mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-2">Live Camera Feed</h2>
+                    <p class="text-gray-600 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-1"></i>
+                        Camera access allow karein emotion detection ke liye
+                    </p>
+                </div>
+
+                <!-- Video Container -->
+                <div class="relative bg-gray-900 rounded-xl overflow-hidden mb-6" style="height: 480px;">
+                    <video id="inputVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                    <canvas id="overlay" class="absolute left-0 top-0 pointer-events-none w-full h-full"></canvas>
+                    
+                    <!-- Status Overlay -->
+                    <div id="statusOverlay" class="absolute top-4 left-4 bg-black/50 text-white px-3 py-2 rounded-lg text-sm">
+                        Model status: <span id="modelStatus">Not loaded</span>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex flex-wrap gap-3">
+                    <button id="startBtn" class="primary-button text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="play" class="w-5 h-5"></i>
+                        <span>Start Camera</span>
+                    </button>
+                    <button id="stopBtn" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center space-x-2 hover:bg-gray-300 transition-colors">
+                        <i data-lucide="square" class="w-5 h-5"></i>
+                        <span>Stop Camera</span>
+                    </button>
+                    <button id="submitBtn" disabled class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="check" class="w-5 h-5"></i>
+                        <span>Continue</span>
+                    </button>
+                    <button id="skipBtn" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center space-x-2 hover:bg-gray-300 transition-colors">
+                        <i data-lucide="skip-forward" class="w-5 h-5"></i>
+                        <span>Skip</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="lg:col-span-1">
+            <div class="space-y-6">
+                <!-- Current Mood Card -->
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Current Mood</h3>
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="smile" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-2" id="moodEmoji">—</div>
+                        <div class="text-xl font-bold text-gray-900 mb-1" id="dominantMood">—</div>
+                        <div class="text-sm text-gray-600" id="dominantConf">—</div>
+                    </div>
+                </div>
+
+                <!-- Expressions List -->
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Expressions</h3>
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="bar-chart-2" class="w-5 h-5 text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2" id="exprList">
+                        <!-- Expressions populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Features Section (Non-Workflow Mode) -->
+    <section class="grid md:grid-cols-3 gap-8 mb-12">
+        <div class="glass-card rounded-2xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="zap" class="w-6 h-6 text-green-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Real-time Detection</h3>
+            <p class="text-gray-600">Get instant emotion feedback as you move and express yourself naturally.</p>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="brain" class="w-6 h-6 text-purple-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Advanced AI</h3>
+            <p class="text-gray-600">Powered by sophisticated face-api.js technology for accurate emotion recognition.</p>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="lock" class="w-6 h-6 text-blue-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Privacy Protected</h3>
+            <p class="text-gray-600">All processing happens locally in your browser - no images are sent to servers.</p>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Instructions -->
+    <section class="glass-card rounded-2xl p-8 card-hover">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">How It Works</h2>
+        <div class="grid md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
+                    1
+                </div>
+                <h4 class="font-medium text-gray-900 mb-2">Allow Camera</h4>
+                <p class="text-gray-600 text-sm">Grant camera permissions when prompted</p>
+            </div>
+            <div class="text-center">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
+                    2
+                </div>
+                <h4 class="font-medium text-gray-900 mb-2">Start Detection</h4>
+                <p class="text-gray-600 text-sm">Click "Start Camera" to begin emotion analysis</p>
+            </div>
+            <div class="text-center">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
+                    3
+                </div>
+                <h4 class="font-medium text-gray-900 mb-2">See Results</h4>
+                <p class="text-gray-600 text-sm">View real-time emotion detection with confidence scores</p>
+            </div>
+            <div class="text-center">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
+                    4
+                </div>
+                <h4 class="font-medium text-gray-900 mb-2">Track Patterns</h4>
+                <p class="text-gray-600 text-sm">Monitor your emotional trends over time</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% if workflow_mode %}
+<!-- Face API.js for emotion detection -->
+<script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+{% endif %}
+
+<script>
+    lucide.createIcons();
+    
+    {% if workflow_mode %}
+    // Workflow Mode - Emotion Detection with Submit/Skip
+    const video = document.getElementById('inputVideo');
+    const overlay = document.getElementById('overlay');
+    const ctx = overlay ? overlay.getContext('2d') : null;
+
+    const modelStatus = document.getElementById('modelStatus');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const skipBtn = document.getElementById('skipBtn');
+
+    const exprList = document.getElementById('exprList');
+    const dominantMood = document.getElementById('dominantMood');
+    const dominantConf = document.getElementById('dominantConf');
+    const moodEmoji = document.getElementById('moodEmoji');
+
+    let stream = null;
+    let detectionInterval = null;
+    let currentEmotion = null;
+    let currentConfidence = 0;
+
+    async function loadModels(){
+      modelStatus.textContent = 'Loading models...';
+      try{
+        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+        modelStatus.textContent = 'Models loaded';
+      }catch(e){
+        console.warn('Could not load models from /models. Attempting remote fallback.');
+        try{
+          await faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights');
+          await faceapi.nets.faceExpressionNet.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights');
+          modelStatus.textContent = 'Models loaded (remote)';
+        }catch(err){
+          modelStatus.textContent = 'Model load failed';
+          console.error(err);
+          throw err;
+        }
+      }
+    }
+
+    function startCamera(){
+      if (stream) return;
+      navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false})
+        .then(s => { 
+          stream = s; 
+          video.srcObject = s; 
+          video.play(); 
+          setupCanvas();
+          detectionInterval = setInterval(detectExpressions, 200);
+        })
+        .catch(err => { 
+          alert('Camera error: ' + err.message); 
+          console.error(err); 
+        });
+    }
+
+    function stopCamera(){
+      if (!stream) return;
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      if (detectionInterval) clearInterval(detectionInterval);
+      if (ctx) ctx.clearRect(0,0,overlay.width,overlay.height);
+      dominantMood.textContent = '—'; 
+      dominantConf.textContent = '—'; 
+      moodEmoji.textContent = '—';
+    }
+
+    function setupCanvas(){
+      if (!overlay) return;
+      overlay.width = video.videoWidth || 640;
+      overlay.height = video.videoHeight || 480;
+    }
+
+    async function detectExpressions(){
+      if (!video || video.readyState < 2) return;
+      if (overlay.width !== video.videoWidth || overlay.height !== video.videoHeight) setupCanvas();
+
+      const options = new faceapi.TinyFaceDetectorOptions({inputSize:224, scoreThreshold:0.5});
+      const result = await faceapi.detectSingleFace(video, options).withFaceExpressions();
+
+      if (ctx) ctx.clearRect(0,0,overlay.width,overlay.height);
+      
+      if (!result){
+        dominantMood.textContent = 'No face detected';
+        dominantConf.textContent = '—';
+        moodEmoji.textContent = '—';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      // Draw box
+      const resizedBox = result.detection.box;
+      if (ctx) {
+        ctx.strokeStyle = '#3b82f6'; 
+        ctx.lineWidth = 2; 
+        ctx.strokeRect(resizedBox.x, resizedBox.y, resizedBox.width, resizedBox.height);
+      }
+
+      const expressions = result.expressions;
+      const sorted = Object.entries(expressions).sort((a,b)=>b[1]-a[1]);
+      const top = sorted[0];
+      const mood = mapExpressionToMood(top[0]);
+      const conf = (top[1]*100).toFixed(1);
+
+      // Update UI
+      dominantMood.textContent = mood.label;
+      dominantConf.textContent = conf + '%';
+      moodEmoji.textContent = mood.emoji;
+      
+      // Store current emotion
+      currentEmotion = mood.label;
+      currentConfidence = parseFloat(conf);
+      
+      // Enable submit button
+      submitBtn.disabled = false;
+
+      // Update expressions list
+      exprList.innerHTML = '';
+      for (const [k,v] of sorted){
+        const div = document.createElement('div'); 
+        div.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg';
+        div.innerHTML = `<div class="font-medium text-gray-900">${capitalize(k)}</div><div class="text-sm font-semibold text-blue-600">${(v*100).toFixed(1)}%</div>`;
+        exprList.appendChild(div);
+      }
+    }
+
+    function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+    function mapExpressionToMood(expr){
+      switch(expr){
+        case 'happy': return {label:'Happy', emoji:'😊'};
+        case 'sad': return {label:'Sad', emoji:'🙁'};
+        case 'angry': return {label:'Angry', emoji:'😠'};
+        case 'fearful': return {label:'Fearful', emoji:'😨'};
+        case 'disgusted': return {label:'Disgusted', emoji:'🤢'};
+        case 'surprised': return {label:'Surprised', emoji:'😮'};
+        default: return {label:'Neutral', emoji:'😐'};
+      }
+    }
+
+    // Event Listeners
+    startBtn.addEventListener('click', async ()=>{
+      startBtn.disabled = true; 
+      startBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>Starting...</span>';
+      try{
+        await loadModels();
+        startCamera();
+      }catch(e){ 
+        console.error(e); 
+        alert('Failed to load models or start camera. You can skip this step.'); 
+      }
+      startBtn.disabled=false; 
+      startBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i><span>Start Camera</span>';
+      lucide.createIcons();
+    });
+    
+    stopBtn.addEventListener('click', ()=>{ stopCamera(); });
+
+    // Submit emotion data
+    submitBtn.addEventListener('click', async ()=>{
+      if (!currentEmotion) {
+        alert('Please wait for emotion detection to complete');
+        return;
+      }
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>Submitting...</span>';
+      lucide.createIcons();
+      
+      try {
+        const response = await fetch('/complete-analysis/emotion/submit', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            emotion: currentEmotion,
+            confidence: currentConfidence,
+            mood_data: {}
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          window.location.href = data.redirect;
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i><span>Continue</span>';
+          lucide.createIcons();
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        alert('Failed to submit emotion data');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i><span>Continue</span>';
+        lucide.createIcons();
+      }
+    });
+
+    // Skip emotion detection
+    skipBtn.addEventListener('click', async ()=>{
+      if (!confirm('Camera access nahi mil raha? Aap is step ko skip kar sakte hain.')) {
+        return;
+      }
+      
+      skipBtn.disabled = true;
+      skipBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>Skipping...</span>';
+      lucide.createIcons();
+      
+      try {
+        const response = await fetch('/complete-analysis/emotion/skip', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'}
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          window.location.href = data.redirect;
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+          skipBtn.disabled = false;
+          skipBtn.innerHTML = '<i data-lucide="skip-forward" class="w-5 h-5"></i><span>Skip</span>';
+          lucide.createIcons();
+        }
+      } catch (error) {
+        console.error('Skip error:', error);
+        alert('Failed to skip emotion detection');
+        skipBtn.disabled = false;
+        skipBtn.innerHTML = '<i data-lucide="skip-forward" class="w-5 h-5"></i><span>Skip</span>';
+        lucide.createIcons();
+      }
+    });
+
+    // Auto-load models on page load
+    (async ()=>{
+      try{ await loadModels(); }catch(e){ /* ignore */ }
+    })();
+    {% endif %}
+</script>
+{% endblock %}

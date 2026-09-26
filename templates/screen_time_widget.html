@@ -1,0 +1,246 @@
+<!-- Screen Time Widget -->
+<div class="glass-card rounded-2xl p-6 card-hover">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-purple-600"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-900">Screen Time</h3>
+                <p class="text-sm text-gray-500">Your usage on CalmNest</p>
+            </div>
+        </div>
+        <button onclick="refreshScreenTime()" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+        </button>
+    </div>
+    
+    <!-- Today's Time -->
+    <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 mb-6">
+        <div class="text-center">
+            <p class="text-sm text-purple-600 font-medium mb-2">Today</p>
+            <div class="text-4xl font-bold text-purple-900" id="today-screen-time">
+                <span class="animate-pulse">...</span>
+            </div>
+            <p class="text-xs text-purple-600 mt-2" id="today-status">Tracking active time</p>
+        </div>
+    </div>
+    
+    <!-- Weekly Stats -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <p class="text-xs text-gray-500 mb-1">This Week</p>
+            <p class="text-2xl font-bold text-gray-900" id="week-screen-time">
+                <span class="animate-pulse">...</span>
+            </p>
+        </div>
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <p class="text-xs text-gray-500 mb-1">Daily Average</p>
+            <p class="text-2xl font-bold text-gray-900" id="avg-screen-time">
+                <span class="animate-pulse">...</span>
+            </p>
+        </div>
+    </div>
+    
+    <!-- 7-Day Chart -->
+    <div class="bg-white rounded-lg p-4 border border-gray-200 mb-4">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Last 7 Days</p>
+        <canvas id="screen-time-chart" height="120"></canvas>
+    </div>
+    
+    <!-- Page Breakdown -->
+    <div class="bg-white rounded-lg p-4 border border-gray-200">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Today's Activity</p>
+        <div id="page-breakdown" class="space-y-2">
+            <p class="text-xs text-gray-400 text-center py-2">Loading...</p>
+        </div>
+    </div>
+    
+    <!-- Tips -->
+    <div class="mt-4 bg-blue-50 rounded-lg p-4 border border-blue-100">
+        <div class="flex items-start space-x-2">
+            <i data-lucide="info" class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <p class="text-xs text-blue-800">
+                <strong>Healthy Usage:</strong> Taking regular breaks and limiting screen time can improve mental well-being. Consider the 20-20-20 rule: Every 20 minutes, look at something 20 feet away for 20 seconds.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+let screenTimeChart = null;
+
+// Initialize screen time display
+function initScreenTimeWidget() {
+    updateScreenTimeDisplay();
+    loadWeeklyStats();
+    
+    // Update every 30 seconds
+    setInterval(updateScreenTimeDisplay, 30000);
+}
+
+function updateScreenTimeDisplay() {
+    if (!window.screenTimeTracker) return;
+    
+    const todayTime = window.screenTimeTracker.getTodayTime();
+    const formatted = window.screenTimeTracker.formatTime(todayTime);
+    
+    document.getElementById('today-screen-time').textContent = formatted;
+    
+    // Update status
+    const hours = todayTime / (1000 * 60 * 60);
+    let status = '';
+    if (hours < 0.5) {
+        status = '✨ Just getting started';
+    } else if (hours < 1) {
+        status = '👍 Moderate usage';
+    } else if (hours < 2) {
+        status = '⚠️ Consider taking a break';
+    } else {
+        status = '🚨 High usage - take a break!';
+    }
+    document.getElementById('today-status').textContent = status;
+    
+    // Update page breakdown
+    updatePageBreakdown();
+}
+
+function updatePageBreakdown() {
+    if (!window.screenTimeTracker) return;
+    
+    const pageTimes = window.screenTimeTracker.getPageTimes();
+    const container = document.getElementById('page-breakdown');
+    
+    if (Object.keys(pageTimes).length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">No activity yet today</p>';
+        return;
+    }
+    
+    const pageNames = {
+        '/': 'Home',
+        '/dashboard': 'Dashboard',
+        '/emotion': 'Mood Detection',
+        '/phq9': 'PHQ-9',
+        '/gad7': 'GAD-7',
+        '/breathe': 'Breathing',
+        '/chatbot': 'Chatbot'
+    };
+    
+    let html = '';
+    const sortedPages = Object.entries(pageTimes).sort((a, b) => b[1] - a[1]);
+    
+    sortedPages.forEach(([page, time]) => {
+        const name = pageNames[page] || page;
+        const formatted = window.screenTimeTracker.formatTime(time);
+        const percentage = (time / window.screenTimeTracker.getTodayTime()) * 100;
+        
+        html += `
+            <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-600">${name}</span>
+                <div class="flex items-center space-x-2">
+                    <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-500 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                    <span class="text-gray-900 font-medium w-12 text-right">${formatted}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+async function loadWeeklyStats() {
+    try {
+        const response = await fetch('/api/screen-time/stats?days=7');
+        const data = await response.json();
+        
+        // Update weekly total
+        document.getElementById('week-screen-time').textContent = data.totalFormatted;
+        document.getElementById('avg-screen-time').textContent = data.averageFormatted;
+        
+        // Create chart
+        createScreenTimeChart(data.stats);
+    } catch (error) {
+        console.error('Error loading weekly stats:', error);
+        document.getElementById('week-screen-time').textContent = '0m';
+        document.getElementById('avg-screen-time').textContent = '0m';
+    }
+}
+
+function createScreenTimeChart(stats) {
+    const ctx = document.getElementById('screen-time-chart');
+    if (!ctx) return;
+    
+    // Destroy existing chart
+    if (screenTimeChart) {
+        screenTimeChart.destroy();
+    }
+    
+    const labels = stats.map(s => {
+        const date = new Date(s.date);
+        return date.toLocaleDateString('en-US', { weekday: 'short' });
+    });
+    
+    const data = stats.map(s => s.time / (1000 * 60)); // Convert to minutes
+    
+    screenTimeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Minutes',
+                data: data,
+                backgroundColor: 'rgba(147, 51, 234, 0.5)',
+                borderColor: 'rgba(147, 51, 234, 1)',
+                borderWidth: 2,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const minutes = Math.floor(context.parsed.y);
+                            const hours = Math.floor(minutes / 60);
+                            const mins = minutes % 60;
+                            if (hours > 0) {
+                                return `${hours}h ${mins}m`;
+                            }
+                            return `${mins}m`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return Math.floor(value) + 'm';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function refreshScreenTime() {
+    updateScreenTimeDisplay();
+    loadWeeklyStats();
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreenTimeWidget);
+} else {
+    initScreenTimeWidget();
+}
+</script>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face-API.js Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Face-API.js Debug Tool</h1>
+    
+    <div id="status" class="status info">Initializing...</div>
+    
+    <h2>Test Different CDN Sources</h2>
+    <button onclick="testCDN('jsdelivr')">Test jsdelivr</button>
+    <button onclick="testCDN('unpkg')">Test unpkg</button>
+    <button onclick="testCDN('cloudflare')">Test Cloudflare</button>
+    <button onclick="testAllCDNs()">Test All CDNs</button>
+    
+    <h2>Manual Test</h2>
+    <button onclick="testManualLoad()">Manual Load Test</button>
+    <button onclick="checkFaceApi()">Check if faceapi is available</button>
+    
+    <h2>Results</h2>
+    <div id="results"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function addResult(message, success = true) {
+            const div = document.createElement('div');
+            div.className = `status ${success ? 'success' : 'error'}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        const cdnSources = {
+            'jsdelivr': 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js',
+            'unpkg': 'https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js',
+            'cloudflare': 'https://cdnjs.cloudflare.com/ajax/libs/face-api.js/0.22.2/face-api.min.js'
+        };
+        
+        async function testCDN(name) {
+            updateStatus(`Testing ${name} CDN...`, 'info');
+            const url = cdnSources[name];
+            
+            try {
+                // First test if URL is reachable
+                const response = await fetch(url, { method: 'HEAD', mode: 'cors' });
+                addResult(`${name} CDN reachable: ${response.status} ${response.statusText}`, response.ok);
+                
+                if (response.ok) {
+                    // Try to load the script
+                    await loadScript(url);
+                    addResult(`${name} CDN: Script loaded successfully`, true);
+                    
+                    // Check if faceapi is available
+                    setTimeout(() => {
+                        if (typeof window.faceapi !== 'undefined') {
+                            addResult(`${name} CDN: face-api.js is available!`, true);
+                            updateStatus('Success! face-api.js loaded', 'success');
+                        } else {
+                            addResult(`${name} CDN: face-api.js not available after loading`, false);
+                        }
+                    }, 2000);
+                }
+                
+            } catch (error) {
+                addResult(`${name} CDN failed: ${error.message}`, false);
+            }
+        }
+        
+        async function testAllCDNs() {
+            updateStatus('Testing all CDNs...', 'info');
+            resultsDiv.innerHTML = '';
+            
+            for (const [name, url] of Object.entries(cdnSources)) {
+                await testCDN(name);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+        
+        function loadScript(url) {
+            return new Promise((resolve, reject) => {
+                // Remove existing face-api scripts
+                const existingScripts = document.querySelectorAll('script[src*="face-api"]');
+                existingScripts.forEach(script => script.remove());
+                
+                const script = document.createElement('script');
+                script.src = url;
+                script.crossOrigin = 'anonymous';
+                
+                script.onload = resolve;
+                script.onerror = reject;
+                
+                document.head.appendChild(script);
+            });
+        }
+        
+        async function testManualLoad() {
+            updateStatus('Manual load test...', 'info');
+            
+            try {
+                await loadScript('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js');
+                
+                // Wait for initialization
+                let attempts = 0;
+                while (attempts < 30 && typeof window.faceapi === 'undefined') {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    attempts++;
+                }
+                
+                if (typeof window.faceapi !== 'undefined') {
+                    addResult('Manual load: face-api.js is available!', true);
+                    updateStatus('Manual load successful!', 'success');
+                    
+                    // Test basic functionality
+                    if (typeof window.faceapi.nets !== 'undefined') {
+                        addResult('face-api.nets is available', true);
+                    } else {
+                        addResult('face-api.nets is not available', false);
+                    }
+                } else {
+                    addResult('Manual load: face-api.js not available after 6 seconds', false);
+                }
+                
+            } catch (error) {
+                addResult(`Manual load failed: ${error.message}`, false);
+            }
+        }
+        
+        function checkFaceApi() {
+            if (typeof window.faceapi !== 'undefined') {
+                addResult('face-api.js is available!', true);
+                addResult(`Version: ${window.faceapi.version || 'unknown'}`, true);
+                
+                if (typeof window.faceapi.nets !== 'undefined') {
+                    const nets = Object.keys(window.faceapi.nets);
+                    addResult(`Available networks: ${nets.join(', ')}`, true);
+                }
+            } else {
+                addResult('face-api.js is not available', false);
+            }
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            updateStatus('Page loaded - Ready to test', 'info');
+            checkFaceApi();
+        });
+    </script>
+</body>
+</html>

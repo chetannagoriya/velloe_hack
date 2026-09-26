@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex flex-col">
+        <!-- Chat Container - Full Page -->
+        <div class="flex-1 flex flex-col bg-white overflow-hidden">
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 p-6 relative overflow-hidden shadow-lg">
+                <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30">
+                                <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                        </div>
+                        <div class="text-white">
+                            <h2 class="text-xl font-semibold">Jaya - CalmNest Assistant</h2>
+                            <p class="text-sm text-white/80 flex items-center">
+                                <span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5 animate-pulse"></span>
+                                Always here to listen
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                    <button onclick="clearChat()" class="text-sm text-white/70 bg-white/10 px-3 py-2 rounded-lg backdrop-blur-sm hover:bg-white/20 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i>
+                        Clear
+                    </button>
+                    <div class="text-sm text-white/70 bg-white/10 px-3 py-2 rounded-lg backdrop-blur-sm">
+                        <i data-lucide="shield-check" class="w-4 h-4 inline mr-1"></i>
+                        Safe & Confidential
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Messages Area - Full Height -->
+            <div id="chatbot-messages" class="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white p-6 space-y-4">
+                <!-- Welcome Message -->
+                <div class="flex items-start space-x-3 animate-fade-in">
+                    <div class="w-9 h-9 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="max-w-2xl">
+                        <div class="bg-white rounded-xl rounded-tl-none p-4 shadow-sm border border-gray-100">
+                            {% if has_context %}
+                            <p class="text-gray-800 text-base leading-relaxed mb-3">Namaste! 👋 Main aapki complete assessment dekh chuki hoon. Aapne bahut courage dikhaya hai yeh sab share karke. 💙</p>
+                            <div class="bg-purple-50 border-l-4 border-purple-500 p-3 rounded-r-lg mt-3">
+                                <p class="text-sm font-semibold text-purple-900 mb-2">📊 Aapki Assessment Summary:</p>
+                                <div class="text-sm text-gray-700 space-y-1" id="assessment-summary">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            <p class="text-gray-800 text-base leading-relaxed mt-3">Main yahan hoon aapki madad karne ke liye. Aap mujhse kuch bhi pooch sakte hain. 🌟</p>
+                            {% else %}
+                            <p class="text-gray-800 text-base leading-relaxed">Namaste! 👋 Main aapki support ke liye yahan hoon. Aap kaisa feel kar rahe hain aaj? 💙</p>
+                            {% endif %}
+                        </div>
+                        <span class="text-sm text-gray-400 mt-1 ml-1">Just now</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-gradient-to-r from-gray-50 to-white border-t border-gray-200 p-6">
+                <div id="chatbot-typing" class="hidden mb-3 px-2 flex items-center space-x-2">
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></span>
+                        <span class="w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-75"></span>
+                        <span class="w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-150"></span>
+                    </div>
+                    <span class="text-sm text-gray-500">CalmNest is typing...</span>
+                </div>
+                
+                <form id="chatbot-form" class="flex items-center space-x-3 max-w-5xl mx-auto">
+                    <div class="flex-1 relative">
+                        <input
+                            id="chatbot-input"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Share what's on your mind..."
+                            class="w-full px-4 py-3 pr-12 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all text-gray-800 placeholder-gray-400 text-base"
+                        />
+                        <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                            <i data-lucide="paperclip" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <button
+                        type="submit"
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center group"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Quick Actions -->
+                <div class="flex flex-wrap gap-2 mt-4 max-w-5xl mx-auto">
+                    <button class="quick-action px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors">
+                        Main anxious feel kar raha hoon
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors">
+                        Main sad feel kar raha hoon
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200 transition-colors">
+                        Mujhe coping strategies chahiye
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium hover:bg-orange-200 transition-colors">
+                        Main stressed hoon
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors">
+                        Mujhe neend nahi aa rahi
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium hover:bg-indigo-200 transition-colors">
+                        Breathing exercise dikhao
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-pink-100 text-pink-700 rounded-full text-sm font-medium hover:bg-pink-200 transition-colors">
+                        Main lonely feel kar raha hoon
+                    </button>
+                    <button class="quick-action px-3 py-2 bg-teal-100 text-teal-700 rounded-full text-sm font-medium hover:bg-teal-200 transition-colors">
+                        CalmNest kya kar sakta hai?
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="bg-white/80 backdrop-blur-sm py-3 text-center border-t border-gray-200">
+            <p class="text-sm text-gray-500">
+                <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                Support companion, not professional care
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+}
+.delay-75 { animation-delay: 75ms; }
+.delay-150 { animation-delay: 150ms; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if has_context and session_id %}
+    // Load and display assessment summary
+    fetch('/api/assessment-summary/{{ session_id }}')
+        .then(response => response.json())
+        .then(data => {
+            const summaryEl = document.getElementById('assessment-summary');
+            if (summaryEl && data.summary) {
+                summaryEl.innerHTML = data.summary;
+            }
+        })
+        .catch(err => console.warn('Could not load assessment summary:', err));
+    {% endif %}
+
+    // Quick action buttons
+    document.querySelectorAll('.quick-action').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = document.getElementById('chatbot-input');
+            input.value = this.textContent;
+            input.focus();
+        });
+    });
+
+    // Chatbot functionality
+    const form = document.getElementById("chatbot-form");
+    const input = document.getElementById("chatbot-input");
+    const messages = document.getElementById("chatbot-messages");
+    const typingEl = document.getElementById("chatbot-typing");
+
+    if (!form || !input || !messages) {
+        console.error("Chatbot elements not found");
+        return;
+    }
+
+    function addMessage(sender, text, isUser) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex items-start space-x-3 animate-fade-in";
+        wrapper.classList.add(isUser ? "justify-end" : "justify-start");
+
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (isUser) {
+            wrapper.innerHTML = `
+                <div class="max-w-2xl">
+                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl rounded-tr-none p-4 shadow-sm">
+                        <p class="text-base leading-relaxed">${text}</p>
+                    </div>
+                    <span class="text-sm text-gray-400 mt-1 ml-1 text-right block">${timestamp}</span>
+                </div>
+            `;
+        } else {
+            wrapper.innerHTML = `
+                <div class="w-9 h-9 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="max-w-2xl">
+                    <div class="bg-white rounded-xl rounded-tl-none p-4 shadow-sm border border-gray-100">
+                        <p class="text-gray-800 text-base leading-relaxed">${text}</p>
+                    </div>
+                    <span class="text-sm text-gray-400 mt-1 ml-1">${timestamp}</span>
+                </div>
+            `;
+        }
+
+        messages.appendChild(wrapper);
+        messages.scrollTop = messages.scrollHeight;
+        
+        // Save to localStorage
+        saveMessageToHistory(sender, text, isUser, timestamp);
+        
+        // Re-initialize Lucide icons for new elements
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
+    function saveMessageToHistory(sender, text, isUser, timestamp) {
+        try {
+            const history = JSON.parse(localStorage.getItem('chatbotHistory') || '[]');
+            history.push({ sender, text, isUser, timestamp });
+            // Keep only last 50 messages
+            if (history.length > 50) {
+                history.shift();
+            }
+            localStorage.setItem('chatbotHistory', JSON.stringify(history));
+        } catch (e) {
+            console.warn('Could not save message to history:', e);
+        }
+    }
+
+    function loadMessageHistory() {
+        try {
+            const history = JSON.parse(localStorage.getItem('chatbotHistory') || '[]');
+            history.forEach(msg => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "flex items-start space-x-3";
+                wrapper.classList.add(msg.isUser ? "justify-end" : "justify-start");
+
+                if (msg.isUser) {
+                    wrapper.innerHTML = `
+                        <div class="max-w-2xl">
+                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl rounded-tr-none p-4 shadow-sm">
+                                <p class="text-base leading-relaxed">${msg.text}</p>
+                            </div>
+                            <span class="text-sm text-gray-400 mt-1 ml-1 text-right block">${msg.timestamp}</span>
+                        </div>
+                    `;
+                } else {
+                    wrapper.innerHTML = `
+                        <div class="w-9 h-9 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div class="max-w-2xl">
+                            <div class="bg-white rounded-xl rounded-tl-none p-4 shadow-sm border border-gray-100">
+                                <p class="text-gray-800 text-base leading-relaxed">${msg.text}</p>
+                            </div>
+                            <span class="text-sm text-gray-400 mt-1 ml-1">${msg.timestamp}</span>
+                        </div>
+                    `;
+                }
+                messages.appendChild(wrapper);
+            });
+            
+            // Re-initialize Lucide icons for loaded messages
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Scroll to bottom
+            messages.scrollTop = messages.scrollHeight;
+        } catch (e) {
+            console.warn('Could not load message history:', e);
+        }
+    }
+
+    // Load history on page load - DISABLED to start fresh
+    // loadMessageHistory();
+
+    // Make clearChat function global
+    window.clearChat = function() {
+        if (confirm('Are you sure you want to clear all chat history?')) {
+            // Clear localStorage
+            localStorage.removeItem('chatbotHistory');
+            
+            // Clear server-side history
+            fetch('/clear-history', { method: 'POST' })
+                .then(() => console.log('Server history cleared'))
+                .catch(err => console.warn('Could not clear server history:', err));
+            
+            // Clear messages except welcome message
+            messages.innerHTML = `
+                <div class="flex items-start space-x-2 animate-fade-in">
+                    <div class="w-7 h-7 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i>
+                    </div>
+                    <div class="max-w-xs">
+                        <div class="bg-white rounded-xl rounded-tl-none p-3 shadow-sm border border-gray-100">
+                            <p class="text-gray-800 text-sm leading-relaxed">Namaste! 👋 Main aapki support ke liye yahan hoon. Aap kaisa feel kar rahe hain aaj? 💙</p>
+                        </div>
+                        <span class="text-xs text-gray-400 mt-1 ml-1">Just now</span>
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            alert('Chat history cleared successfully! ✅');
+        }
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = (input.value || "").trim();
+        if (!text) return;
+
+        addMessage("You", text, true);
+        input.value = "";
+
+        try {
+            if (typingEl) {
+                typingEl.classList.remove("hidden");
+            }
+            
+            // Create a placeholder for streaming response
+            const botMessageWrapper = document.createElement("div");
+            botMessageWrapper.className = "flex items-start space-x-2 animate-fade-in";
+            
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            botMessageWrapper.innerHTML = `
+                <div class="w-7 h-7 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i>
+                </div>
+                <div class="max-w-xs">
+                    <div class="bg-white rounded-xl rounded-tl-none p-3 shadow-sm border border-gray-100">
+                        <p class="text-gray-800 text-sm leading-relaxed bot-response"></p>
+                    </div>
+                    <span class="text-xs text-gray-400 mt-1 ml-1">${timestamp}</span>
+                </div>
+            `;
+            
+            messages.appendChild(botMessageWrapper);
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            const botResponseEl = botMessageWrapper.querySelector('.bot-response');
+            
+            // Show typing indicator
+            botResponseEl.innerHTML = '<span class="inline-block animate-pulse">●●●</span>';
+            
+            // Use streaming endpoint
+            const res = await fetch("/chat-stream", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text }),
+            });
+
+            if (!res.ok) {
+                botResponseEl.textContent = "I'm having trouble responding right now. Please try again in a moment.";
+                return;
+            }
+
+            // Stream the response
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let fullResponse = "";
+            
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value);
+                fullResponse += chunk;
+                botResponseEl.textContent = fullResponse;
+                messages.scrollTop = messages.scrollHeight;
+            }
+            
+            // Save to localStorage after streaming completes
+            if (fullResponse) {
+                saveMessageToHistory("Bot", fullResponse, false, timestamp);
+            }
+            
+        } catch (err) {
+            console.error("Error calling /chat-stream:", err);
+            addMessage(
+                "Bot",
+                "Something went wrong while contacting the support bot. Make sure Ollama is running.",
+                false
+            );
+        } finally {
+            if (typingEl) {
+                typingEl.classList.add("hidden");
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

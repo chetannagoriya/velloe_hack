@@ -1,0 +1,31 @@
+/* CalmNest – Enhanced Styles for Tailwind CSS
+ *
+ * Design goals:
+ * - Modern gradient design with Tailwind CSS
+ * - Glass morphism effects
+ * - Smooth animations and transitions
+ */
+
+/* Override conflicting styles and enhance Tailwind */
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Ensure Tailwind utilities take precedence */
+.content {
+    flex: 1;
+    padding: 0;
+    max-width: none;
+    margin: 0;
+}
+
+/* Hide only old conflicting elements that are actually replaced */
+.navbar, .logo, .footer, .primary-btn, .secondary-btn {
+    display: none !important;
+}
+
+/* Ensure main content is visible */
+main.content {
+    display: block !important;
+    flex: 1 !important;
+}

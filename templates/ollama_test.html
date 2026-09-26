@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Connection Test - CalmNest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">Ollama Connection Test</h1>
+            
+            <div id="status" class="mb-4 p-4 rounded-lg">
+                <p class="text-gray-600">Checking Ollama status...</p>
+            </div>
+            
+            <div class="mb-4">
+                <h2 class="text-lg font-semibold mb-2">Test Chat</h2>
+                <input 
+                    type="text" 
+                    id="testInput" 
+                    placeholder="Type a message..." 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <button 
+                    onclick="testChat()" 
+                    class="mt-2 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                    Send Test Message
+                </button>
+            </div>
+            
+            <div id="response" class="bg-gray-50 p-4 rounded-lg min-h-[100px]">
+                <p class="text-gray-500 italic">Response will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check Ollama status on load
+        async function checkStatus() {
+            const statusDiv = document.getElementById('status');
+            try {
+                const res = await fetch('/health');
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    statusDiv.innerHTML = `
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            <p class="font-bold">✓ Ollama is running!</p>
+                            <p class="text-sm">Model: ${data.model_available ? 'llama3:8b ✓' : 'llama3:8b not found'}</p>
+                            <p class="text-sm">Available models: ${data.available_models.join(', ')}</p>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            <p class="font-bold">✗ Ollama is not running</p>
+                            <p class="text-sm">${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                statusDiv.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <p class="font-bold">✗ Connection Error</p>
+                        <p class="text-sm">${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testChat() {
+            const input = document.getElementById('testInput');
+            const responseDiv = document.getElementById('response');
+            const message = input.value.trim();
+            
+            if (!message) {
+                alert('Please enter a message');
+                return;
+            }
+            
+            responseDiv.innerHTML = '<p class="text-gray-500 italic">Streaming response...</p>';
+            
+            try {
+                const res = await fetch('/chat-stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    fullResponse += chunk;
+                    responseDiv.innerHTML = `<p class="text-gray-800">${fullResponse}</p>`;
+                }
+            } catch (err) {
+                responseDiv.innerHTML = `<p class="text-red-600">Error: ${err.message}</p>`;
+            }
+        }
+        
+        // Check status on load
+        checkStatus();
+        
+        // Allow Enter key to send message
+        document.getElementById('testInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                testChat();
+            }
+        });
+    </script>
+</body>
+</html>

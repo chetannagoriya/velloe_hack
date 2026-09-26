@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <section class="text-center mb-16">
+        <div class="glass-card rounded-2xl p-8 card-hover">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="heart" class="w-8 h-8 text-blue-600"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to CalmNest</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+                A gentle space to check in with your feelings, breathe, and find simple support.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{{ url_for('start_complete_analysis') }}?new=true" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold inline-flex items-center space-x-2 hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                    <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+                    <span>Complete Analysis</span>
+                </a>
+                <a href="{{ url_for('emotion_page') }}" class="bg-white text-gray-700 border-2 border-gray-200 px-8 py-4 rounded-xl font-semibold inline-flex items-center space-x-2 hover:shadow-lg transition-all">
+                    <i data-lucide="smile" class="w-5 h-5"></i>
+                    <span>Quick Mood Check</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Cards -->
+    <section class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div class="glass-card rounded-xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Dashboard</h2>
+            <p class="text-gray-600 text-sm mb-4">See your recent mood history and trends</p>
+            <a href="{{ url_for('dashboard_page') }}" class="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center space-x-1">
+                <span>View Dashboard</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="clipboard-list" class="w-6 h-6 text-green-600"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">PHQ-9 Test</h2>
+            <p class="text-gray-600 text-sm mb-4">Quick assessment for depressive symptoms</p>
+            <a href="{{ url_for('phq9_page') }}" class="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center space-x-1">
+                <span>Take Test</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-circle" class="w-6 h-6 text-purple-600"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">GAD-7 Test</h2>
+            <p class="text-gray-600 text-sm mb-4">Quick assessment for anxiety symptoms</p>
+            <a href="{{ url_for('gad7_page') }}" class="text-purple-600 hover:text-purple-700 font-medium text-sm inline-flex items-center space-x-1">
+                <span>Take Test</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 card-hover text-center">
+            <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="wind" class="w-6 h-6 text-teal-600"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Breathing</h2>
+            <p class="text-gray-600 text-sm mb-4">Follow calming breathing exercises</p>
+            <a href="{{ url_for('breathe_page') }}" class="text-teal-600 hover:text-teal-700 font-medium text-sm inline-flex items-center space-x-1">
+                <span>Start Breathing</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="glass-card rounded-2xl p-8">
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">Why CalmNest?</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shield" class="w-6 h-6 text-white"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Privacy First</h3>
+                <p class="text-gray-600 text-sm">Your data stays on your device. We don't store your personal information.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Quick & Easy</h3>
+                <p class="text-gray-600 text-sm">Get instant insights with our simple, user-friendly interface.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">AI Powered</h3>
+                <p class="text-gray-600 text-sm">Advanced emotion detection using cutting-edge AI technology.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

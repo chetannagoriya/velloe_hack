@@ -1,0 +1,73 @@
+<!-- Workflow Progress Indicator Component -->
+<div class="workflow-progress mb-8 bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm">
+    <div class="flex justify-between items-center mb-3">
+        <span class="text-sm font-semibold text-gray-700">
+            Step {{ progress.current }} of {{ progress.total }}
+        </span>
+        <span class="text-sm text-purple-600 font-medium">{{ progress.percent }}% Complete</span>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm" 
+             style="width: {{ progress.percent }}%"></div>
+    </div>
+    
+    <!-- Step Labels -->
+    <div class="flex justify-between text-xs">
+        <div class="flex flex-col items-center {% if 'gad7' in progress.completed_steps %}text-green-600 font-semibold{% elif progress.current == 1 %}text-purple-600 font-semibold{% else %}text-gray-400{% endif %}">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1 {% if 'gad7' in progress.completed_steps %}bg-green-100 border-2 border-green-500{% elif progress.current == 1 %}bg-purple-100 border-2 border-purple-500{% else %}bg-gray-100{% endif %}">
+                {% if 'gad7' in progress.completed_steps %}
+                <i data-lucide="check" class="w-4 h-4"></i>
+                {% else %}
+                <span>1</span>
+                {% endif %}
+            </div>
+            <span class="text-center">GAD-7</span>
+        </div>
+        
+        <div class="flex flex-col items-center {% if 'phq9' in progress.completed_steps %}text-green-600 font-semibold{% elif progress.current == 2 %}text-purple-600 font-semibold{% else %}text-gray-400{% endif %}">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1 {% if 'phq9' in progress.completed_steps %}bg-green-100 border-2 border-green-500{% elif progress.current == 2 %}bg-purple-100 border-2 border-purple-500{% else %}bg-gray-100{% endif %}">
+                {% if 'phq9' in progress.completed_steps %}
+                <i data-lucide="check" class="w-4 h-4"></i>
+                {% else %}
+                <span>2</span>
+                {% endif %}
+            </div>
+            <span class="text-center">PHQ-9</span>
+        </div>
+        
+        <div class="flex flex-col items-center {% if 'emotion' in progress.completed_steps %}text-green-600 font-semibold{% elif progress.current == 3 %}text-purple-600 font-semibold{% else %}text-gray-400{% endif %}">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1 {% if 'emotion' in progress.completed_steps %}bg-green-100 border-2 border-green-500{% elif progress.current == 3 %}bg-purple-100 border-2 border-purple-500{% else %}bg-gray-100{% endif %}">
+                {% if 'emotion' in progress.completed_steps %}
+                <i data-lucide="check" class="w-4 h-4"></i>
+                {% else %}
+                <span>3</span>
+                {% endif %}
+            </div>
+            <span class="text-center">Emotion</span>
+        </div>
+        
+        <div class="flex flex-col items-center {% if 'lifestyle' in progress.completed_steps %}text-green-600 font-semibold{% elif progress.current == 4 %}text-purple-600 font-semibold{% else %}text-gray-400{% endif %}">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1 {% if 'lifestyle' in progress.completed_steps %}bg-green-100 border-2 border-green-500{% elif progress.current == 4 %}bg-purple-100 border-2 border-purple-500{% else %}bg-gray-100{% endif %}">
+                {% if 'lifestyle' in progress.completed_steps %}
+                <i data-lucide="check" class="w-4 h-4"></i>
+                {% else %}
+                <span>4</span>
+                {% endif %}
+            </div>
+            <span class="text-center">Lifestyle</span>
+        </div>
+        
+        <div class="flex flex-col items-center {% if 'report' in progress.completed_steps %}text-green-600 font-semibold{% elif progress.current == 5 %}text-purple-600 font-semibold{% else %}text-gray-400{% endif %}">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1 {% if 'report' in progress.completed_steps %}bg-green-100 border-2 border-green-500{% elif progress.current == 5 %}bg-purple-100 border-2 border-purple-500{% else %}bg-gray-100{% endif %}">
+                {% if 'report' in progress.completed_steps %}
+                <i data-lucide="check" class="w-4 h-4"></i>
+                {% else %}
+                <span>5</span>
+                {% endif %}
+            </div>
+            <span class="text-center">Report</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+{
+  "date": "2026-03-10",
+  "sessions": [
+    {
+      "sessionId": "user_575b686807f56666",
+      "totalTime": 652218,
+      "lastUpdated": 1773085703410
+    },
+    {
+      "sessionId": "user_088d58f3e37fbe21",
+      "totalTime": 655351,
+      "lastUpdated": 1773085706950
+    },
+    {
+      "sessionId": "user_a762add1563b832e",
+      "totalTime": 659943,
+      "lastUpdated": 1773085711955
+    },
+    {
+      "sessionId": "user_77015528dbacfd2c",
+      "totalTime": 676017,
+      "lastUpdated": 1773085726647
+    },
+    {
+      "sessionId": "user_9947e705d5e04c41",
+      "totalTime": 689954,
+      "lastUpdated": 1773085742303
+    },
+    {
+      "sessionId": "user_28c2af52be24f3e2",
+      "totalTime": 719947,
+      "lastUpdated": 1773085772296
+    },
+    {
+      "sessionId": "user_d0c07ff91a80c892",
+      "totalTime": 749946,
+      "lastUpdated": 1773085802295
+    },
+    {
+      "sessionId": "user_3e913968a45fd354",
+      "totalTime": 752652,
+      "lastUpdated": 1773085832295
+    },
+    {
+      "sessionId": "user_3bf05f6f8666e571",
+      "totalTime": 752653,
+      "lastUpdated": 1773086203896
+    },
+    {
+      "sessionId": "user_956df79377655be4",
+      "totalTime": 755565,
+      "lastUpdated": 1773086222302
+    },
+    {
+      "sessionId": "user_983ee5db32744e71",
+      "totalTime": 785562,
+      "lastUpdated": 1773086252298
+    },
+    {
+      "sessionId": "user_cc1e0f34f3b7ac21",
+      "totalTime": 785562,
+      "lastUpdated": 1773086403906
+    },
+    {
+      "sessionId": "user_7bda6a5251b8f8b5",
+      "totalTime": 785564,
+      "lastUpdated": 1773086525947
+    },
+    {
+      "sessionId": "user_96b73726624b790a",
+      "totalTime": 785599,
+      "lastUpdated": 1773086820457
+    },
+    {
+      "sessionId": "user_cbdcd9b9d4add592",
+      "totalTime": 787067,
+      "lastUpdated": 1773086972304
+    },
+    {
+      "sessionId": "user_cd386516cde2c9e3",
+      "totalTime": 787102,
+      "lastUpdated": 1773087704151
+    },
+    {
+      "sessionId": "user_cb66fcc89ec9de70",
+      "totalTime": 791761,
+      "lastUpdated": 1773087708809
+    },
+    {
+      "sessionId": "user_22f4aeef1a6e7c5e",
+      "totalTime": 794473,
+      "lastUpdated": 1773087712106
+    },
+    {
+      "sessionId": "user_4e13fc9c26f19528",
+      "totalTime": 795920,
+      "lastUpdated": 1773087713919
+    }
+  ],
+  "totalTime": 14162856
+}

@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+        <div class="glass-card rounded-2xl p-8 card-hover">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="bar-chart-3" class="w-8 h-8 text-blue-600"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Wellness Dashboard</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                See a quick overview of your recent mood, checks, and breathing exercises.
+            </p>
+        </div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Current Mood</h3>
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="smile" class="w-5 h-5 text-blue-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2" id="current-mood-value">--</div>
+            <p class="text-sm text-gray-600" id="current-mood-time">No recent check yet.</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Average Mood Today</h3>
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2" id="avg-mood-value">--</div>
+            <p class="text-sm text-gray-600">Based on your mood detections</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">PHQ-9 Score</h3>
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-purple-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2" id="phq9-score-value">--</div>
+            <p class="text-sm text-gray-600" id="phq9-level-text">No test completed yet.</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">GAD-7 Score</h3>
+                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-orange-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2" id="gad7-score-value">--</div>
+            <p class="text-sm text-gray-600" id="gad7-level-text">No test completed yet.</p>
+        </div>
+    </section>
+
+    <!-- Screen Time Widget -->
+    <section class="glass-card rounded-2xl p-8 card-hover mb-12">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Screen Time Tracker</h2>
+                <p class="text-gray-600 flex items-center">
+                    <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                    Your daily usage on CalmNest
+                </p>
+            </div>
+            <div class="text-right">
+                <div class="text-4xl font-bold text-teal-600" id="today-screen-time">0m</div>
+                <p class="text-sm text-gray-600">Today</p>
+            </div>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="bg-white rounded-xl p-6 border border-gray-200">
+            <canvas id="screenTimeChart" height="80"></canvas>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="grid md:grid-cols-3 gap-4 mt-6">
+            <div class="bg-gradient-to-br from-blue-50 to-teal-50 rounded-lg p-4 border border-blue-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-600">7-Day Total</span>
+                    <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-blue-900" id="week-total-time">0h 0m</div>
+            </div>
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-600">Daily Average</span>
+                    <i data-lucide="trending-up" class="w-4 h-4 text-purple-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-purple-900" id="daily-avg-time">0m</div>
+            </div>
+            <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-4 border border-green-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-600">Current Session</span>
+                    <i data-lucide="activity" class="w-4 h-4 text-green-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-green-900" id="session-time">0m</div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="mt-6 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg p-4 border border-teal-200">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-1">💡 Healthy Usage Tips</h4>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Take breaks every 20-30 minutes</li>
+                        <li>• Practice breathing exercises between sessions</li>
+                        <li>• Balance screen time with offline activities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <section class="glass-card rounded-2xl p-8 card-hover mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">Quick Actions</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <a href="{{ url_for('emotion_page') }}" class="primary-button text-white px-6 py-4 rounded-lg font-medium text-center inline-flex items-center justify-center space-x-2 hover:shadow-lg transition-shadow">
+                <i data-lucide="smile" class="w-5 h-5"></i>
+                <span>Check Mood</span>
+            </a>
+            <a href="{{ url_for('phq9_page') }}" class="bg-green-500 text-white px-6 py-4 rounded-lg font-medium text-center inline-flex items-center justify-center space-x-2 hover:bg-green-600 transition-colors">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                <span>Take PHQ-9</span>
+            </a>
+            <a href="{{ url_for('gad7_page') }}" class="bg-orange-500 text-white px-6 py-4 rounded-lg font-medium text-center inline-flex items-center justify-center space-x-2 hover:bg-orange-600 transition-colors">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                <span>Take GAD-7</span>
+            </a>
+        </div>
+        <div class="mt-6 text-center">
+            <a href="{{ url_for('breathe_page') }}" class="bg-teal-500 text-white px-6 py-3 rounded-lg font-medium inline-flex items-center space-x-2 hover:bg-teal-600 transition-colors">
+                <i data-lucide="wind" class="w-5 h-5"></i>
+                <span>Breathing Exercise</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Recent Emotions Chart -->
+    <section class="glass-card rounded-2xl p-8 card-hover mb-12">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Recent Emotions</h2>
+            <p class="text-gray-600 flex items-center">
+                <i data-lucide="info" class="w-4 h-4 mr-1"></i>
+                Last 30 emotions detected from this browser
+            </p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <canvas id="emotion-history-chart" height="120"></canvas>
+        </div>
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                <div class="text-2xl mb-1">😊</div>
+                <p class="text-sm text-green-700 font-medium">Positive</p>
+                <p class="text-lg font-bold text-green-900" id="positive-count">0</p>
+            </div>
+            <div class="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div class="text-2xl mb-1">😐</div>
+                <p class="text-sm text-yellow-700 font-medium">Neutral</p>
+                <p class="text-lg font-bold text-yellow-900" id="neutral-count">0</p>
+            </div>
+            <div class="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                <div class="text-2xl mb-1">😔</div>
+                <p class="text-sm text-red-700 font-medium">Negative</p>
+                <p class="text-lg font-bold text-red-900" id="negative-count">0</p>
+            </div>
+            <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div class="text-2xl mb-1">📊</div>
+                <p class="text-sm text-blue-700 font-medium">Total</p>
+                <p class="text-lg font-bold text-blue-900" id="total-count">0</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Complete Analysis History -->
+    <section class="glass-card rounded-2xl p-8 card-hover">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Complete Analysis History</h2>
+                <p class="text-gray-600 flex items-center">
+                    <i data-lucide="clipboard-check" class="w-4 h-4 mr-1"></i>
+                    Track your mental health journey over time
+                </p>
+            </div>
+            <a href="/complete-analysis/start?new=true" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-medium inline-flex items-center space-x-2 hover:shadow-lg transition-all">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                <span>New Analysis</span>
+            </a>
+        </div>
+        
+        <div id="analysis-history-container">
+            <!-- Will be populated by JavaScript -->
+            <div class="text-center py-12">
+                <div class="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="text-gray-500">Loading your analysis history...</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+
+<script>
+// Screen Time Tracking and Display
+let screenTimeChart = null;
+
+async function loadScreenTimeData() {
+    console.log('📊 Loading screen time data...');
+    
+    try {
+        // Wait for tracker to be ready
+        let attempts = 0;
+        const waitForTracker = setInterval(() => {
+            attempts++;
+            const tracker = window.getScreenTimeTracker ? window.getScreenTimeTracker() : null;
+            if (tracker || attempts > 10) {
+                clearInterval(waitForTracker);
+                if (tracker) {
+                    console.log('✅ Tracker ready, starting updates');
+                    updateTodayTimeFromTracker();
+                    // Update every second
+                    setInterval(updateTodayTimeFromTracker, 1000);
+                } else {
+                    console.error('❌ Tracker not available after 5 seconds');
+                }
+            }
+        }, 500);
+        
+        // Get stats from server
+        const response = await fetch('/api/screen-time/stats?days=7');
+        const data = await response.json();
+        
+        if (data.stats) {
+            // Update week total
+            document.getElementById('week-total-time').textContent = data.totalFormatted || '0m';
+            
+            // Update daily average
+            document.getElementById('daily-avg-time').textContent = data.averageFormatted || '0m';
+            
+            // Update chart
+            updateScreenTimeChart(data.stats);
+        }
+    } catch (error) {
+        console.error('❌ Error loading screen time:', error);
+    }
+}
+
+function updateTodayTimeFromTracker() {
+    try {
+        const tracker = window.getScreenTimeTracker ? window.getScreenTimeTracker() : null;
+        if (!tracker) {
+            // Tracker not ready yet
+            return;
+        }
+        
+        const todayTime = tracker.getTodayTime();
+        const formatted = tracker.formatTime(todayTime);
+        
+        const element = document.getElementById('today-screen-time');
+        if (element) {
+            element.textContent = formatted || '0m';
+        }
+        
+        // Also update session time if element exists
+        const sessionEl = document.getElementById('session-time');
+        if (sessionEl && tracker.sessionStart) {
+            const sessionTime = Date.now() - tracker.sessionStart;
+            sessionEl.textContent = tracker.formatTime(sessionTime);
+        }
+    } catch (error) {
+        console.error('❌ Error updating time display:', error);
+    }
+}
+
+function updateSessionTime() {
+    const tracker = window.getScreenTimeTracker ? window.getScreenTimeTracker() : null;
+    if (tracker) {
+        const sessionTime = Date.now() - tracker.sessionStart;
+        const formatted = tracker.formatTime(sessionTime);
+        const sessionEl = document.getElementById('session-time');
+        if (sessionEl) {
+            sessionEl.textContent = formatted;
+        }
+    }
+}
+
+function updateScreenTimeChart(stats) {
+    const ctx = document.getElementById('screenTimeChart');
+    if (!ctx) return;
+    
+    // Prepare data
+    const labels = stats.map(s => {
+        const date = new Date(s.date);
+        return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    });
+    
+    const data = stats.map(s => Math.round(s.time / 60000)); // Convert to minutes
+    
+    // Destroy existing chart
+    if (screenTimeChart) {
+        screenTimeChart.destroy();
+    }
+    
+    // Create new chart
+    screenTimeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Screen Time (minutes)',
+                data: data,
+                backgroundColor: 'rgba(20, 184, 166, 0.6)',
+                borderColor: 'rgba(20, 184, 166, 1)',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const minutes = context.parsed.y;
+                            const hours = Math.floor(minutes / 60);
+                            const mins = minutes % 60;
+                            if (hours > 0) {
+                                return `${hours}h ${mins}m`;
+                            }
+                            return `${mins}m`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + 'm';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Load screen time data when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Dashboard loaded, initializing screen time...');
+    
+    // Start updating immediately
+    setTimeout(() => {
+        loadScreenTimeData();
+        
+        // Also start immediate updates
+        const updateInterval = setInterval(() => {
+            const tracker = window.getScreenTimeTracker ? window.getScreenTimeTracker() : null;
+            if (tracker) {
+                const time = tracker.getTodayTime();
+                const formatted = tracker.formatTime(time);
+                const el = document.getElementById('today-screen-time');
+                if (el && formatted) {
+                    el.textContent = formatted;
+                }
+            }
+        }, 1000);
+        
+        console.log('✅ Screen time updates started');
+    }, 1000); // Wait 1 second for tracker to initialize
+});
+
+// Backup: Also try on window load
+window.addEventListener('load', () => {
+    console.log('🔄 Window loaded, double-checking screen time...');
+    setTimeout(() => {
+        const tracker = window.getScreenTimeTracker ? window.getScreenTimeTracker() : null;
+        if (tracker) {
+            const time = tracker.getTodayTime();
+            const formatted = tracker.formatTime(time);
+            console.log('📊 Current tracked time:', formatted);
+            const el = document.getElementById('today-screen-time');
+            if (el) {
+                el.textContent = formatted || '0m';
+                console.log('✅ Display updated to:', el.textContent);
+            }
+        }
+    }, 500);
+});
+</script>

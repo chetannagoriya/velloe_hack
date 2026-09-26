@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+        <div class="glass-card rounded-2xl p-8 card-hover">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="camera" class="w-8 h-8 text-blue-600"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Facial Expression Detection</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Experience real-time emotion detection using advanced face-api.js technology in your browser.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Video Section -->
+        <div class="lg:col-span-2">
+            <div class="glass-card rounded-2xl p-6 card-hover">
+                <div class="mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-2">Live Camera Feed</h2>
+                    <p class="text-gray-600 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-1"></i>
+                        Allow camera access to begin emotion detection
+                    </p>
+                </div>
+
+                <!-- Video Container -->
+                <div class="relative bg-gray-900 rounded-xl overflow-hidden mb-6" style="height: 480px;">
+                    <video id="inputVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                    <canvas id="overlay" class="absolute left-0 top-0 pointer-events-none w-full h-full"></video>
+                    
+                    <!-- Status Overlay -->
+                    <div id="statusOverlay" class="absolute top-4 left-4 bg-black/50 text-white px-3 py-2 rounded-lg text-sm">
+                        Model status: <span id="modelStatus">Not loaded</span>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex flex-wrap gap-3">
+                    <button id="startBtn" class="primary-button text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="play" class="w-5 h-5"></i>
+                        <span>Start Camera</span>
+                    </button>
+                    <button id="stopBtn" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center space-x-2 hover:bg-gray-300 transition-colors">
+                        <i data-lucide="square" class="w-5 h-5"></i>
+                        <span>Stop Camera</span>
+                    </button>
+                    <button id="snapshotBtn" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center space-x-2 hover:bg-gray-300 transition-colors">
+                        <i data-lucide="camera" class="w-5 h-5"></i>
+                        <span>Take Snapshot</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="lg:col-span-1">
+            <div class="space-y-6">
+                <!-- Current Mood Card -->
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Current Mood</h3>
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="smile" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-2" id="moodEmoji">—</div>
+                        <div class="text-xl font-bold text-gray-900 mb-1" id="dominantMood">—</div>
+                        <div class="text-sm text-gray-600" id="dominantConf">—</div>
+                    </div>
+                </div>
+
+                <!-- Expressions List -->
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Expressions</h3>
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="bar-chart-2" class="w-5 h-5 text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2" id="exprList">
+                        <!-- Expressions populated by JS -->
+                    </div>
+                </div>
+
+                <!-- History -->
+                <div class="glass-card rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent History</h3>
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="clock" class="w-5 h-5 text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-2 text-gray-600">Time</th>
+                                    <th class="text-left py-2 text-gray-600">Mood</th>
+                                    <th class="text-left py-2 text-gray-600">Conf</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyBody">
+                                <!-- History populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+  IMPORTANT SETUP NOTES:
+  1) This example uses face-api.js. Download the library and the model weights or use a CDN build for the library.
+     Recommended: put the model files in a "models" folder next to this HTML file and run a local server.
+     Models needed: tiny_face_detector_model-weights (or use SSD) and face_expression_model-weights
+     https://github.com/justadudewhohacks/face-api.js/tree/master/weights
+
+  2) If you want to run without downloading models, you need to host the models somewhere accessible and change loadFromUri() accordingly.
+
+  3) This is a demo — for production you should handle privacy, permissions, and use more robust models and smoothing.
+-->
+
+  <!-- Face API.js -->
+  <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // DOM Elements
+    const video = document.getElementById('inputVideo');
+    const overlay = document.getElementById('overlay');
+    const ctx = overlay.getContext('2d');
+
+    const modelStatus = document.getElementById('modelStatus');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const snapshotBtn = document.getElementById('snapshotBtn');
+
+    const exprList = document.getElementById('exprList');
+    const dominantMood = document.getElementById('dominantMood');
+    const dominantConf = document.getElementById('dominantConf');
+    const moodEmoji = document.getElementById('moodEmoji');
+    const historyBody = document.getElementById('historyBody');
+
+    let stream = null;
+    let detectionInterval = null;
+    let history = [];
+
+    async function loadModels(){
+      modelStatus.textContent = 'Loading models...';
+      // By default this tries to load model files from /models
+      // Put models in a folder called "models" next to this file (recommended for local testing)
+      try{
+        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+        modelStatus.textContent = 'Models loaded (from /models)';
+      }catch(e){
+        console.warn('Could not load models from /models. Attempting to load remotely as a fallback.');
+        // Example fallback — these remote paths may change. It's recommended to host models locally.
+        try{
+          await faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights');
+          await faceapi.nets.faceExpressionNet.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights');
+          modelStatus.textContent = 'Models loaded (remote)';
+        }catch(err){
+          modelStatus.textContent = 'Model load failed — check console';
+          console.error(err);
+          throw err;
+        }
+      }
+    }
+
+    function startCamera(){
+      if (stream) return;
+      navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false})
+        .then(s => { stream = s; video.srcObject = s; video.play(); setupCanvas();
+          // start periodic detection
+          detectionInterval = setInterval(detectExpressions, 200);
+        })
+        .catch(err => { alert('Camera error: ' + err.message); console.error(err); });
+    }
+
+    function stopCamera(){
+      if (!stream) return;
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      if (detectionInterval) clearInterval(detectionInterval);
+      ctx.clearRect(0,0,overlay.width,overlay.height);
+      dominantMood.textContent = '—'; dominantConf.textContent = '—'; moodEmoji.textContent = '—';
+    }
+
+    function setupCanvas(){
+      overlay.width = video.videoWidth || 640;
+      overlay.height = video.videoHeight || 480;
+    }
+
+    async function detectExpressions(){
+      if (!video || video.readyState < 2) return;
+      // ensure canvas size matches
+      if (overlay.width !== video.videoWidth || overlay.height !== video.videoHeight) setupCanvas();
+
+      // tiny face detector options
+      const options = new faceapi.TinyFaceDetectorOptions({inputSize:224, scoreThreshold:0.5});
+      const result = await faceapi.detectSingleFace(video, options).withFaceExpressions();
+
+      ctx.clearRect(0,0,overlay.width,overlay.height);
+      if (!result){
+        // no face
+        dominantMood.textContent = 'No face detected';
+        dominantConf.textContent = '—';
+        moodEmoji.textContent = '—';
+        return;
+      }
+
+      // draw box
+      const resizedBox = result.detection.box;
+      ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.strokeRect(resizedBox.x, resizedBox.y, resizedBox.width, resizedBox.height);
+
+      const expressions = result.expressions;
+      // convert to array sorted by probability descending
+      const sorted = Object.entries(expressions).sort((a,b)=>b[1]-a[1]);
+      // top expression
+      const top = sorted[0];
+      const mood = mapExpressionToMood(top[0]);
+      const conf = (top[1]*100).toFixed(1) + '%';
+
+      // update UI
+      dominantMood.textContent = mood.label + (mood.note ? ' ('+mood.note+')' : '');
+      dominantConf.textContent = conf;
+      moodEmoji.textContent = mood.emoji;
+
+      // update expressions list
+      exprList.innerHTML = '';
+      for (const [k,v] of sorted){
+        const div = document.createElement('div'); 
+        div.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg';
+        div.innerHTML = `<div class="font-medium text-gray-900">${capitalize(k)}</div><div class="text-sm font-semibold text-blue-600">${(v*100).toFixed(1)}%</div>`;
+        exprList.appendChild(div);
+      }
+
+      // add to history
+      history.unshift({t:new Date(), mood:mood.short, conf:conf});
+      if (history.length>20) history.pop();
+      renderHistory();
+      
+      // Save to localStorage for dashboard integration
+      saveEmotionToLocalStorage(mood.label, parseFloat(conf));
+    }
+
+    function saveEmotionToLocalStorage(emotionLabel, confidence) {
+      try {
+        const now = Date.now();
+        const entry = { 
+          time: now, 
+          emotion: emotionLabel, 
+          confidence: confidence, 
+          score: getEmotionScore(emotionLabel) 
+        };
+        
+        const raw = localStorage.getItem("emotionData") || "[]";
+        const arr = JSON.parse(raw);
+        arr.push(entry);
+        
+        // Keep last 200 entries to avoid unbounded growth
+        while (arr.length > 200) arr.shift();
+        
+        localStorage.setItem("emotionData", JSON.stringify(arr));
+        
+        // Also update current mood
+        localStorage.setItem("current_mood", JSON.stringify({
+          emotion: emotionLabel,
+          time: now
+        }));
+      } catch (e) {
+        console.warn("Could not save emotion history:", e);
+      }
+    }
+
+    function getEmotionScore(emotion) {
+      const scores = {
+        "Happy": 8,
+        "Surprise": 6,
+        "Neutral": 5,
+        "Fear": 3,
+        "Sad": 2,
+        "Angry": 1
+      };
+      return scores[emotion] || 5;
+    }
+
+    function renderHistory(){
+      historyBody.innerHTML='';
+      for (const row of history){
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-100';
+        tr.innerHTML = `<td class="py-2 text-gray-600">${row.t.toLocaleTimeString()}</td><td class="py-2 font-medium">${row.mood}</td><td class="py-2 text-gray-600">${row.conf}</td>`;
+        historyBody.appendChild(tr);
+      }
+    }
+
+    function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+    // Map face-api expressions to friendly mood labels (you can expand this mapping)
+    function mapExpressionToMood(expr){
+      // expression keys: neutral, happy, sad, angry, fearful, disgusted, surprised
+      switch(expr){
+        case 'happy': return {short:'Happy', label:'Happy', emoji:'😊', note:''};
+        case 'sad': return {short:'Sad', label:'Sad', emoji:'🙁', note:'may be down'};
+        case 'angry': return {short:'Angry', label:'Angry', emoji:'😠', note:'possible frustration'};
+        case 'fearful': return {short:'Afraid', label:'Fearful', emoji:'😨', note:'possible fear'};
+        case 'disgusted': return {short:'Disgusted', label:'Disgusted', emoji:'🤢', note:''};
+        case 'surprised': return {short:'Surprised', label:'Surprised', emoji:'😮', note:''};
+        default: return {short:'Neutral', label:'Neutral', emoji:'😐', note:''};
+      }
+    }
+
+    // snapshot button — capture current canvas + video
+    snapshotBtn.addEventListener('click', ()=>{
+      if (!video) return;
+      const tmp = document.createElement('canvas'); tmp.width = overlay.width; tmp.height = overlay.height; const tctx = tmp.getContext('2d');
+      tctx.drawImage(video,0,0,tmp.width,tmp.height);
+      tctx.drawImage(overlay,0,0);
+      const url = tmp.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = url; a.download = 'snapshot.png'; a.click();
+    });
+
+    startBtn.addEventListener('click', async ()=>{
+      startBtn.disabled = true; startBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>Starting...</span>';
+      try{
+        await loadModels();
+        startCamera();
+      }catch(e){ console.error(e); alert('Failed to load models or start camera (check console).'); }
+      startBtn.disabled=false; startBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i><span>Start Camera</span>';
+      lucide.createIcons();
+    });
+    
+    stopBtn.addEventListener('click', ()=>{ stopCamera(); });
+
+    // Auto attempt to load models when page loads (not starting camera)
+    (async ()=>{
+      try{ await loadModels(); }catch(e){ /* ignore - will show error in UI */ }
+    })();
+  </script>
+{% endblock %}

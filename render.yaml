@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: calmnest
+    env: docker
+    plan: standard
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+    disk:
+      name: ollama-models
+      mountPath: /root/.ollama
+      sizeGB: 10

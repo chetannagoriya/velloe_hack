@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Force Clear Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md">
+        <h1 class="text-2xl font-bold mb-4">Clear All Data</h1>
+        <p class="text-gray-600 mb-6">This will clear all emotion data, PHQ-9, and GAD-7 results from your browser.</p>
+        <button onclick="clearAllData()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors w-full">
+            Clear All Data
+        </button>
+        <div id="status" class="mt-4 text-sm"></div>
+    </div>
+
+    <script>
+        function clearAllData() {
+            // Clear all localStorage data
+            localStorage.removeItem("emotionData");
+            localStorage.removeItem("current_mood");
+            localStorage.removeItem("phq9Data");
+            localStorage.removeItem("gad7Data");
+            
+            // Show confirmation
+            document.getElementById('status').innerHTML = 
+                '<div class="text-green-600 font-medium">✓ All data cleared successfully!</div>' +
+                '<div class="text-gray-500 mt-2">Redirecting to dashboard...</div>';
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 2000);
+        }
+        
+        // Auto-clear on page load
+        window.addEventListener('load', () => {
+            setTimeout(clearAllData, 500);
+        });
+    </script>
+</body>
+</html>
