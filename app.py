@@ -28,17 +28,8 @@ load_dotenv()
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-# Only import AI libraries if keys are available
-google_ai = None
+# Optional external AI setup
 openai_client = None
-
-if GOOGLE_API_KEY:
-    try:
-        import google.generativeai as google_ai
-        google_ai.configure(api_key=GOOGLE_API_KEY)
-        logging.info("Google AI configured successfully")
-    except Exception as e:
-        logging.warning(f"Failed to configure Google AI: {e}")
 
 if OPENAI_API_KEY:
     try:
@@ -66,43 +57,73 @@ def _get_data_dir(subdir: str) -> str:
 
 # Ollama Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3.2:3b"  # Better quality model (was llama3.2:1b)
+MODEL_NAME = "llama3.2:3b"
 
 # Simple in-memory chat storage
 chat_history = []   # [{role: "user"/"assistant", content: "..."}]
-MAX_HISTORY = 4    # Increased for better context understanding
+MAX_HISTORY = 4
 
 
-def get_ai_response(user_message: str) -> str:
-    """Get response from external AI if available, with safety filters."""
-    
-    if not google_ai and not openai_client:
+def query_gemini(user_message: str, system_context: str = "") -> str:
+    """Queries Google Gemini API using REST with automatic model fallback."""
+    api_key = os.getenv('GOOGLE_API_KEY')
+    if not api_key:
         return None
     
+    # Supported models for the current API version (fastest and most capable first)
+    candidate_models = ["gemini-flash-latest", "gemini-3.8-flash", "gemini-3.5-flash-lite"]
+    
+    full_prompt = f"{system_context}\n\nUser: {user_message}\n\nJaya:" if system_context else user_message
+    
+    payload = {
+        "contents": [{"parts": [{"text": full_prompt}]}],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 600
+        }
+    }
+    
+    for model_name in candidate_models:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            resp = requests.post(url, json=payload, timeout=15)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts and "text" in parts[0]:
+                        reply = parts[0]["text"].strip()
+                        if reply:
+                            return reply
+            else:
+                logging.warning(f"Gemini API ({model_name}) status {resp.status_code}: {resp.text[:120]}")
+        except Exception as e:
+            logging.warning(f"Gemini request failed for {model_name}: {e}")
+            continue
+            
+    return None
+
+
+def get_ai_response(user_message: str, context: str = "") -> str:
+    """Get response from external AI (Gemini or OpenAI), with safety filters."""
     # Safety check for crisis content
     crisis_keywords = ["suicide", "kill myself", "end it", "harm", "hurt myself", "don't want to live"]
     if any(word in user_message.lower() for word in crisis_keywords):
         return None  # Let rule-based system handle crisis
     
-    try:
-        # Try Google AI first
-        if google_ai:
-            model = google_ai.GenerativeModel('gemini-pro')
-            response = model.generate_content(
-                f"You are a compassionate mental health support assistant. "
-                f"Provide gentle, supportive responses for: '{user_message}'. "
-                f"Do not give medical advice. Always suggest professional help for serious concerns. "
-                f"Keep responses under 100 words and focus on emotional support."
-            )
-            if response.text:
-                return response.text.strip()
+    # 1. Try Google Gemini REST API (works with user's GOOGLE_API_KEY)
+    gemini_reply = query_gemini(user_message, context)
+    if gemini_reply:
+        return gemini_reply
         
-        # Try OpenAI as fallback
-        if openai_client:
+    # 2. Try OpenAI as fallback
+    if openai_client:
+        try:
             response = openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a compassionate mental health support assistant. Provide gentle, supportive responses. Do not give medical advice. Always suggest professional help for serious concerns. Keep responses under 100 words."},
+                    {"role": "system", "content": context or "You are a compassionate mental health support assistant."},
                     {"role": "user", "content": user_message}
                 ],
                 max_tokens=600,
@@ -110,11 +131,9 @@ def get_ai_response(user_message: str) -> str:
             )
             if response.choices[0].message.content:
                 return response.choices[0].message.content.strip()
-                
-    except Exception as e:
-        logging.warning(f"AI API error: {e}")
-        return None
-    
+        except Exception as e:
+            logging.warning(f"OpenAI API error: {e}")
+            
     return None
 
 
@@ -485,30 +504,48 @@ Always prioritize safety.
     }
     
     def generate():
-        try:
-            response = requests.post(OLLAMA_URL, json=payload, stream=True, timeout=120)  # Increased to 2 minutes
-            full_reply = ""
+        import time
+        full_reply = ""
+        
+        # 1. Try Google Gemini first (primary cloud AI)
+        gemini_reply = query_gemini(user_message, context)
+        if gemini_reply:
+            full_reply = gemini_reply
+            words = full_reply.split(" ")
+            for i, word in enumerate(words):
+                chunk = word + (" " if i < len(words) - 1 else "")
+                yield chunk
+                time.sleep(0.015)
+        else:
+            # 2. Try local Ollama if available
+            try:
+                response = requests.post(OLLAMA_URL, json=payload, stream=True, timeout=8)
+                if response.status_code == 200:
+                    for line in response.iter_lines():
+                        if line:
+                            try:
+                                data = json.loads(line.decode("utf-8"))
+                                token = data.get("response", "")
+                                full_reply += token
+                                yield token
+                            except json.JSONDecodeError:
+                                continue
+            except Exception as e:
+                logging.info(f"Ollama unavailable, falling back: {e}")
             
-            for line in response.iter_lines():
-                if line:
-                    try:
-                        data = json.loads(line.decode("utf-8"))
-                        token = data.get("response", "")
-                        full_reply += token
-                        yield token
-                    except json.JSONDecodeError:
-                        continue
-            
-            # Save assistant reply in memory
-            if full_reply:
-                chat_history.append({"role": "assistant", "content": full_reply})
-                
-        except requests.exceptions.Timeout:
-            error_msg = "Response is taking too long. Try a shorter message or check your system resources (CPU/RAM)."
-            yield error_msg
-        except requests.exceptions.RequestException as e:
-            error_msg = f"Error: Ollama connection failed. Is Ollama running? ({str(e)})"
-            yield error_msg
+            # 3. If neither answered, use intelligent rule-based supportive fallback
+            if not full_reply:
+                fallback_reply = get_bot_response(user_message)
+                full_reply = fallback_reply
+                words = fallback_reply.split(" ")
+                for i, word in enumerate(words):
+                    chunk = word + (" " if i < len(words) - 1 else "")
+                    yield chunk
+                    time.sleep(0.015)
+        
+        # Save assistant reply in memory
+        if full_reply:
+            chat_history.append({"role": "assistant", "content": full_reply})
     
     return Response(generate(), mimetype="text/plain")
 

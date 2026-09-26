@@ -455,7 +455,162 @@
       "sessionId": "user_4aaa8beb5933e857",
       "totalTime": 1163093,
       "lastUpdated": 1790414624288
+    },
+    {
+      "sessionId": "user_ef4537cf60bb4c5a",
+      "totalTime": 1164600,
+      "lastUpdated": 1790416173893
+    },
+    {
+      "sessionId": "user_a9d63a55334c6896",
+      "totalTime": 1194609,
+      "lastUpdated": 1790416205049
+    },
+    {
+      "sessionId": "user_0d21ca43941b0b00",
+      "totalTime": 1199933,
+      "lastUpdated": 1790416372620
+    },
+    {
+      "sessionId": "user_2da05e55e4df0c17",
+      "totalTime": 1203262,
+      "lastUpdated": 1790416463526
+    },
+    {
+      "sessionId": "user_8ef28511e1708041",
+      "totalTime": 1233261,
+      "lastUpdated": 1790416493525
+    },
+    {
+      "sessionId": "user_25063b6bc322b407",
+      "totalTime": 1257578,
+      "lastUpdated": 1790416583528
+    },
+    {
+      "sessionId": "user_a3174ed506e0cfb4",
+      "totalTime": 1287582,
+      "lastUpdated": 1790416613532
+    },
+    {
+      "sessionId": "user_f2b228c19c6b08ad",
+      "totalTime": 1317580,
+      "lastUpdated": 1790416643530
+    },
+    {
+      "sessionId": "user_9a7883fa4cef29b3",
+      "totalTime": 1347586,
+      "lastUpdated": 1790416673536
+    },
+    {
+      "sessionId": "user_daa1792583df08a8",
+      "totalTime": 1348697,
+      "lastUpdated": 1790416796096
+    },
+    {
+      "sessionId": "user_a885637ffdf1b291",
+      "totalTime": 1362373,
+      "lastUpdated": 1790416810741
+    },
+    {
+      "sessionId": "user_e7a63237276f224b",
+      "totalTime": 1392390,
+      "lastUpdated": 1790416841595
+    },
+    {
+      "sessionId": "user_a0ebc38cd6c487ef",
+      "totalTime": 1422391,
+      "lastUpdated": 1790416871596
+    },
+    {
+      "sessionId": "user_fca16264fe2fa9fc",
+      "totalTime": 1452380,
+      "lastUpdated": 1790416901585
+    },
+    {
+      "sessionId": "user_632c0186f86cc5b7",
+      "totalTime": 1454073,
+      "lastUpdated": 1790417231585
+    },
+    {
+      "sessionId": "user_e6150b4160bdb7e0",
+      "totalTime": 1456074,
+      "lastUpdated": 1790417233586
+    },
+    {
+      "sessionId": "user_fec09a8c267a83b5",
+      "totalTime": 1461861,
+      "lastUpdated": 1790417240348
+    },
+    {
+      "sessionId": "user_25342b7ece972472",
+      "totalTime": 1491866,
+      "lastUpdated": 1790417270934
+    },
+    {
+      "sessionId": "user_19f1b9b1e77661c9",
+      "totalTime": 1513407,
+      "lastUpdated": 1790417292475
+    },
+    {
+      "sessionId": "user_920b6ac38fe11459",
+      "totalTime": 1518935,
+      "lastUpdated": 1790417298735
+    },
+    {
+      "sessionId": "user_1cd2e1fa2f924eca",
+      "totalTime": 1548948,
+      "lastUpdated": 1790417329528
+    },
+    {
+      "sessionId": "user_76e5db3bc9d2033f",
+      "totalTime": 1578946,
+      "lastUpdated": 1790417359526
+    },
+    {
+      "sessionId": "user_f2d66851985a40aa",
+      "totalTime": 1608944,
+      "lastUpdated": 1790417389524
+    },
+    {
+      "sessionId": "user_c5c4c71801873b28",
+      "totalTime": 1623437,
+      "lastUpdated": 1790417419524
+    },
+    {
+      "sessionId": "user_634e99de084f5919",
+      "totalTime": 1623451,
+      "lastUpdated": 1790417570174
+    },
+    {
+      "sessionId": "user_d68bf1437efae917",
+      "totalTime": 1637428,
+      "lastUpdated": 1790417629529
+    },
+    {
+      "sessionId": "user_cc78b2b4ffc2dc8a",
+      "totalTime": 1667427,
+      "lastUpdated": 1790417659528
+    },
+    {
+      "sessionId": "user_eb0d532bc699ab8b",
+      "totalTime": 1680293,
+      "lastUpdated": 1790417749328
+    },
+    {
+      "sessionId": "user_d98aa027b92f7f39",
+      "totalTime": 1680483,
+      "lastUpdated": 1790417749518
+    },
+    {
+      "sessionId": "user_f88cf1290a0c4d86",
+      "totalTime": 1688887,
+      "lastUpdated": 1790417758693
+    },
+    {
+      "sessionId": "user_87d34b8bbf84fd33",
+      "totalTime": 1692011,
+      "lastUpdated": 1790417762301
     }
   ],
-  "totalTime": 42384216
+  "totalTime": 87494909
 }
